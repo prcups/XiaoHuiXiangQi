@@ -40,14 +40,23 @@
 class Board : public QGraphicsScene
 {
     Q_OBJECT
-    void drawBackground ( QPainter * painter, const QRectF & rect ) override;
-
+    void drawBackground(QPainter *painter, const QRectF &rect) override;
+    void drawSoldierPos(QPainter *painter, int xPos, int yPos);
+    int boardLeft, boardTop, boardBottom, boardRight,
+        lineDis, heightMargin, widthMargin;
+    int getX(int xPos)
+    {
+        return boardLeft + xPos * lineDis;
+    }
+    int getY(int yPos)
+    {
+        return boardTop + yPos * lineDis;
+    }
 public:
     /**
      * Default constructor
      */
     Board();
-
 };
 
 #endif // BOARD_H

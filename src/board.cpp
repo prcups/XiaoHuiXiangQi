@@ -31,7 +31,7 @@
 
 void Board::drawBackground(QPainter* painter, const QRectF& rect)
 {
-    int heightMargin, widthMargin;
+    painter->fillRect(rect, QColor("green"));
     if (rect.height() / 9 > rect.width() / 8)
     {
         widthMargin = 20;
@@ -41,27 +41,48 @@ void Board::drawBackground(QPainter* painter, const QRectF& rect)
         heightMargin = 20;
         widthMargin = (rect.width() - rect.height() / 9 * 8) / 2 + 20;
     }
-    int boardLeft = rect.x() + widthMargin,
-        boardTop = rect.y() + heightMargin,
-        boardRight = rect.x() + rect.width() - widthMargin,
-        boardBottom = rect.y() + rect.height() - heightMargin,
-        heightLineDis = (boardBottom - boardTop) / 9,
-        widthLineDis = (boardRight - boardLeft) / 8;
+    boardLeft = rect.x() + widthMargin;
+    boardTop = rect.y() + heightMargin;
+    boardRight = rect.x() + rect.width() - widthMargin;
+    boardBottom = rect.y() + rect.height() - heightMargin;
+    lineDis = (boardBottom - boardTop) / 9;
     painter->drawRect(boardLeft, boardTop, boardRight - boardLeft, boardBottom - boardTop);
     for (int i = 1; i < 9; ++i)
     {
-        painter->drawLine(boardLeft, boardTop + i * heightLineDis, boardRight, boardTop + i * heightLineDis);
+        painter->drawLine(boardLeft, getY(i), boardRight, getY(i));
     }
     for (int i = 1; i < 8; ++i)
     {
-        painter->drawLine(boardLeft + i * widthLineDis, boardTop, boardLeft + i * widthLineDis, boardTop + 4 * heightLineDis);
-        painter->drawLine(boardLeft + i * widthLineDis, boardTop + 5 * heightLineDis, boardLeft + i * widthLineDis, boardBottom);
+        painter->drawLine(getX(i), boardTop, getX(i), getY(4));
+        painter->drawLine(getX(i), getY(5), getX(i), boardBottom);
     }
-    painter->drawLine(boardLeft + 3 * widthLineDis, boardTop, boardLeft + 5 * widthLineDis, boardTop + 2 * heightLineDis);
-    painter->drawLine(boardLeft + 5 * widthLineDis, boardTop, boardLeft + 3 * widthLineDis, boardTop + 2 * heightLineDis);
-    painter->drawLine(boardLeft + 3 * widthLineDis, boardBottom, boardLeft + 5 * widthLineDis, boardBottom - 2 * heightLineDis);
-    painter->drawLine(boardLeft + 5 * widthLineDis, boardBottom, boardLeft + 3 * widthLineDis, boardBottom - 2 * heightLineDis);
+    painter->drawLine(getX(3), boardTop, getX(5), getY(2));
+    painter->drawLine(getX(5), boardTop, getX(3), getY(2));
+    painter->drawLine(getX(3), boardBottom, getX(5), getY(7));
+    painter->drawLine(getX(5), boardBottom, getX(3), getY(7));
+    for (int i = 0; i < 5; ++i)
+    {
+        drawSoldierPos(painter, i * 2, 3);
+        drawSoldierPos(painter, i * 2, 6);
+    }
+}
 
+void Board::drawSoldierPos(QPainter* painter, int xPos, int yPos)
+{
+    if (xPos != 0)
+    {
+        painter->drawLine(getX(xPos) - 16, getY(yPos) - 6, getX(xPos) - 6, getY(yPos) - 6);
+        painter->drawLine(getX(xPos) - 6, getY(yPos) - 6, getX(xPos) - 6, getY(yPos) - 16);
+        painter->drawLine(getX(xPos) - 16, getY(yPos) + 6, getX(xPos) - 6, getY(yPos) + 6);
+        painter->drawLine(getX(xPos) - 6, getY(yPos) + 6, getX(xPos) - 6, getY(yPos) + 16);
+    }
+    if (xPos != 8)
+    {
+        painter->drawLine(getX(xPos) + 16, getY(yPos) - 6, getX(xPos) + 6, getY(yPos) - 6);
+        painter->drawLine(getX(xPos) + 6, getY(yPos) - 6, getX(xPos) + 6, getY(yPos) - 16);
+        painter->drawLine(getX(xPos) + 16, getY(yPos) + 6, getX(xPos) + 6, getY(yPos) + 6);
+        painter->drawLine(getX(xPos) + 6, getY(yPos) + 6, getX(xPos) + 6, getY(yPos) + 16);
+    }
 }
 
 
