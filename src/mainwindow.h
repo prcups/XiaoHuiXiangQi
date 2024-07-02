@@ -34,17 +34,21 @@
 #include <QMenuBar>
 #include <QGraphicsView>
 #include <QPointer>
+#include <QDebug>
 #include "board.h"
 
-/**
- * @todo write docs
- */
+class BoardView : public QGraphicsView
+{
+    void resizeEvent ( QResizeEvent * event ) override;
+    using QGraphicsView::QGraphicsView;
+};
+
 class MainWindow : public QMainWindow
 {
     Q_OBJECT
 
     QPointer<Board> boardModel;
-    QPointer<QGraphicsView> boardView;
+    QPointer<BoardView> boardView;
 public:
     /**
      * Default constructor

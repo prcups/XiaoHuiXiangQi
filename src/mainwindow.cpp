@@ -29,10 +29,15 @@
 
 #include "mainwindow.h"
 
+void BoardView::resizeEvent(QResizeEvent* event)
+{
+    fitInView(sceneRect(), Qt::KeepAspectRatio);
+}
+
 MainWindow::MainWindow()
 {
     boardModel = new Board;
-    boardView = new QGraphicsView(boardModel);
+    boardView = new BoardView(boardModel);
     this->setCentralWidget(boardView);
     this->setMinimumSize(480, 540);
 }

@@ -29,9 +29,14 @@
 
 #include "board.h"
 
-void Board::drawBackground(QPainter* painter, const QRectF& rect)
+QRectF BoardBackground::boundingRect() const
 {
-    painter->fillRect(rect, QColor("green"));
+    return  QRectF(0, 0, 960, 1280);
+}
+
+BoardBackground::BoardBackground()
+{
+    auto rect = boundingRect();
     if (rect.height() / 9 > rect.width() / 8)
     {
         widthMargin = 20;
@@ -46,6 +51,13 @@ void Board::drawBackground(QPainter* painter, const QRectF& rect)
     boardRight = rect.x() + rect.width() - widthMargin;
     boardBottom = rect.y() + rect.height() - heightMargin;
     lineDis = (boardBottom - boardTop) / 9;
+}
+
+void BoardBackground::paint(QPainter* painter, const QStyleOptionGraphicsItem* option, QWidget* widget)
+{
+    Q_UNUSED(option)
+    Q_UNUSED(widget)
+
     painter->drawRect(boardLeft, boardTop, boardRight - boardLeft, boardBottom - boardTop);
     for (int i = 1; i < 9; ++i)
     {
@@ -67,7 +79,7 @@ void Board::drawBackground(QPainter* painter, const QRectF& rect)
     }
 }
 
-void Board::drawSoldierPos(QPainter* painter, int xPos, int yPos)
+void BoardBackground::drawSoldierPos(QPainter* painter, int xPos, int yPos)
 {
     if (xPos != 0)
     {
@@ -85,8 +97,68 @@ void Board::drawSoldierPos(QPainter* painter, int xPos, int yPos)
     }
 }
 
-
 Board::Board()
 {
+    background = new BoardBackground;
+    addItem(background);
+    putPieces();
+}
 
+void Board::putPieces()
+{
+    for (int i = 0; i < 10; ++i)
+        for (int j = 0; j < 9; ++j)
+            content[i][j] = nullptr;
+
+    content[0][0] = new Piece(PieceType::Che, playerColor);
+    content[0][1] = new Piece(PieceType::Ma, playerColor);
+    content[0][2] = new Piece(PieceType::Xiang, playerColor);
+    content[0][3] = new Piece(PieceType::Shi, playerColor);
+    content[0][4] = new Piece(PieceType::Jiang, playerColor);
+    content[0][5] = new Piece(PieceType::Shi, playerColor);
+    content[0][6] = new Piece(PieceType::Xiang, playerColor);
+    content[0][7] = new Piece(PieceType::Ma, playerColor);
+    content[0][8] = new Piece(PieceType::Che, playerColor);
+    content[2][1] = new Piece(PieceType::Pao, playerColor);
+    content[2][7] = new Piece(PieceType::Pao, playerColor);
+    content[3][0] = new Piece(PieceType::Zu, playerColor);
+    content[3][2] = new Piece(PieceType::Zu, playerColor);
+    content[3][4] = new Piece(PieceType::Zu, playerColor);
+    content[3][6] = new Piece(PieceType::Zu, playerColor);
+    content[3][8] = new Piece(PieceType::Zu, playerColor);
+
+    PieceColor rivalColor = PieceColor(~playerColor);
+    content[9][0] = new Piece(PieceType::Che, rivalColor);
+    content[9][1] = new Piece(PieceType::Ma, rivalColor);
+    content[9][2] = new Piece(PieceType::Xiang, rivalColor);
+    content[9][3] = new Piece(PieceType::Shi, rivalColor);
+    content[9][4] = new Piece(PieceType::Jiang, rivalColor);
+    content[9][5] = new Piece(PieceType::Shi, rivalColor);
+    content[9][6] = new Piece(PieceType::Xiang, rivalColor);
+    content[9][7] = new Piece(PieceType::Ma, rivalColor);
+    content[9][8] = new Piece(PieceType::Che, rivalColor);
+    content[7][1] = new Piece(PieceType::Pao, rivalColor);
+    content[7][7] = new Piece(PieceType::Pao, rivalColor);
+    content[6][0] = new Piece(PieceType::Zu, rivalColor);
+    content[6][2] = new Piece(PieceType::Zu, rivalColor);
+    content[6][4] = new Piece(PieceType::Zu, rivalColor);
+    content[6][6] = new Piece(PieceType::Zu, rivalColor);
+    content[6][8] = new Piece(PieceType::Zu, rivalColor);
+
+    for (int i = 0; i < 10; ++i)
+        for (int j = 0; j < 9; ++j)
+        {
+            if (content[i][j] == nullptr) content[i][j] = new Piece;
+            content[i][j]->setPos(getX(j), getY(i));
+            addItem(content[i][j]);
+        }
+}
+
+
+Board::~Board() noexcept
+{
+    for (int i = 0; i < 10; ++i)
+        for (int j = 0; j < 9; ++j)
+            delete content[i][j];
+    delete background;
 }

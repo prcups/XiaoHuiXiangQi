@@ -32,31 +32,56 @@
 
 #include <QGraphicsScene>
 #include <QPainter>
+#include <QDebug>
 #include "piece.h"
 
 /**
  * @todo write docs
  */
-class Board : public QGraphicsScene
+
+class Board;
+
+class BoardBackground : public QGraphicsItem
 {
-    Q_OBJECT
-    void drawBackground(QPainter *painter, const QRectF &rect) override;
-    void drawSoldierPos(QPainter *painter, int xPos, int yPos);
-    int boardLeft, boardTop, boardBottom, boardRight,
+    float boardLeft, boardTop, boardBottom, boardRight,
         lineDis, heightMargin, widthMargin;
-    int getX(int xPos)
+    void drawSoldierPos(QPainter *painter, int xPos, int yPos);
+    QRectF boundingRect() const override;
+    void paint ( QPainter * painter, const QStyleOptionGraphicsItem * option, QWidget * widget ) override;
+    float getX(int xPos)
     {
         return boardLeft + xPos * lineDis;
     }
-    int getY(int yPos)
+    float getY(int yPos)
     {
         return boardTop + yPos * lineDis;
+    }
+public:
+    friend Board;
+    BoardBackground();
+};
+
+class Board : public QGraphicsScene
+{
+    Q_OBJECT
+    Piece *content[10][9];
+    BoardBackground* background;
+    PieceColor playerColor = Red;
+    void putPieces();
+    float getX(int xPos)
+    {
+        return background->getX(xPos) - 45;
+    }
+    float getY(int yPos)
+    {
+        return background->getY(9 - yPos) - 45;
     }
 public:
     /**
      * Default constructor
      */
     Board();
+    ~Board() noexcept;
 };
 
 #endif // BOARD_H

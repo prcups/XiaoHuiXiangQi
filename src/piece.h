@@ -30,11 +30,14 @@
 #ifndef PIECE_H
 #define PIECE_H
 
-#include <QObject>
+#include <QGraphicsObject>
+#include <QPainter>
+#include <QWidget>
+#include <QDebug>
 
-enum class PieceType
+enum PieceType
 {
-    General, Advisor, Elephant, Horse, Chariot, Cannon, Soldier
+    Jiang, Shi, Xiang, Ma, Che, Zu, Pao
 };
 
 enum PieceColor
@@ -45,18 +48,20 @@ enum PieceColor
 /**
  * @todo write docs
  */
-class Piece : public QObject
+class Piece : public QGraphicsObject
 {
-    Q_OBJECT
     PieceType type;
     PieceColor color;
-
+    bool invalid = 0;
+    QRectF boundingRect() const override;
+    void paint ( QPainter * painter, const QStyleOptionGraphicsItem * option, QWidget * widget ) override;
 public:
-    /**
-     * Default constructor
-     */
+    Piece(PieceType type, PieceColor color);
     Piece();
-
+    Piece(const Piece &p);
+    Piece & operator = (const Piece &p);
+    PieceType GetType();
+    PieceColor GetColor();
 };
 
 #endif // PIECE_H
