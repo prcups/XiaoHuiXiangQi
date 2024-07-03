@@ -81,12 +81,14 @@ class Board : public QGraphicsScene
         return background->getY(9 - yPos) - 45;
     }
     void mousePressEvent ( QGraphicsSceneMouseEvent * event ) override;
+    void mouseReleaseEvent ( QGraphicsSceneMouseEvent * event ) override;
 public:
     /**
      * Default constructor
      */
     Board();
     ~Board() noexcept;
+    void Move(int fromX, int fromY, int toX, int toY);
 };
 
 #endif // BOARD_H

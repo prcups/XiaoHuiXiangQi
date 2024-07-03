@@ -168,12 +168,42 @@ void Board::mousePressEvent(QGraphicsSceneMouseEvent* event)
     auto pos = event->lastScenePos();
     if (!items(pos).isEmpty())
     {
-        auto focusPiece =  dynamic_cast<Piece*>(items(pos).first());
-        if (focusPiece == nullptr || focusPiece->Invalid || focusPiece->GetColor() != playerColor) return;
-        selectedX = focusPiece->X;
-        selectedY = focusPiece->Y;
+        auto clickedPiece =  dynamic_cast<Piece*>(items(pos).first());
+        if (clickedPiece == nullptr || clickedPiece->Invalid || clickedPiece->GetColor() != playerColor) return;
+        selectedX = clickedPiece->X;
+        selectedY = clickedPiece->Y;
+        selectedMode = 1;
         focusFrame->setPos(getX(selectedY), getY(selectedX));
         if (focusFrame->scene() != this)
             addItem(focusFrame);
     }
 }
+
+void Board::mouseReleaseEvent(QGraphicsSceneMouseEvent* event)
+{
+    if (selectedMode == 0) return;
+    auto pos = event->lastScenePos();
+    if (!items(pos).isEmpty())
+    {
+        auto clickedPiece =  dynamic_cast<Piece*>(items(pos).first());
+        if (clickedPiece == nullptr || clickedPiece->Invalid != 1) return;
+        Move(selectedX, selectedY, clickedPiece->X, clickedPiece->Y);
+        removeItem(focusFrame);
+        selectedMode = 0;
+    }
+}
+
+void Board::Move(int fromX, int fromY, int toX, int toY)
+{
+    content[fromX][fromY]->setPos(getX(toY), getY(toX));
+    content[toX][toY]->setPos(getX(fromY), getY(fromX));
+    content[fromX][fromY]->X = toX;
+    content[fromX][fromY]->Y = toY;
+    content[toX][toY]->X = fromX;
+    content[toX][toY]->Y = fromY;
+    auto pt = content[fromX][fromY];
+    content[fromX][fromY] = content[toX][toY];
+    content[toX][toY] = pt;
+}
+
+
