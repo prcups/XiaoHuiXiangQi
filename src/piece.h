@@ -52,16 +52,17 @@ class Piece : public QGraphicsObject
 {
     PieceType type;
     PieceColor color;
-    bool invalid = 0;
     QRectF boundingRect() const override;
     void paint ( QPainter * painter, const QStyleOptionGraphicsItem * option, QWidget * widget ) override;
 public:
-    Piece(PieceType type, PieceColor color);
-    Piece();
+    Piece(PieceType type, PieceColor color, int x, int y);
+    Piece(int x, int y);
     Piece(const Piece &p);
     Piece & operator = (const Piece &p);
     PieceType GetType();
     PieceColor GetColor();
+    bool Invalid = 0;
+    int X, Y;
 };
 
 #endif // PIECE_H

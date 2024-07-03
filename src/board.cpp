@@ -102,6 +102,7 @@ Board::Board()
     background = new BoardBackground;
     addItem(background);
     putPieces();
+    focusFrame = new QGraphicsRectItem(0, 0, 90, 90);
 }
 
 void Board::putPieces()
@@ -110,50 +111,49 @@ void Board::putPieces()
         for (int j = 0; j < 9; ++j)
             content[i][j] = nullptr;
 
-    content[0][0] = new Piece(PieceType::Che, playerColor);
-    content[0][1] = new Piece(PieceType::Ma, playerColor);
-    content[0][2] = new Piece(PieceType::Xiang, playerColor);
-    content[0][3] = new Piece(PieceType::Shi, playerColor);
-    content[0][4] = new Piece(PieceType::Jiang, playerColor);
-    content[0][5] = new Piece(PieceType::Shi, playerColor);
-    content[0][6] = new Piece(PieceType::Xiang, playerColor);
-    content[0][7] = new Piece(PieceType::Ma, playerColor);
-    content[0][8] = new Piece(PieceType::Che, playerColor);
-    content[2][1] = new Piece(PieceType::Pao, playerColor);
-    content[2][7] = new Piece(PieceType::Pao, playerColor);
-    content[3][0] = new Piece(PieceType::Zu, playerColor);
-    content[3][2] = new Piece(PieceType::Zu, playerColor);
-    content[3][4] = new Piece(PieceType::Zu, playerColor);
-    content[3][6] = new Piece(PieceType::Zu, playerColor);
-    content[3][8] = new Piece(PieceType::Zu, playerColor);
+    content[0][0] = new Piece(PieceType::Che, playerColor, 0, 0);
+    content[0][1] = new Piece(PieceType::Ma, playerColor, 0, 1);
+    content[0][2] = new Piece(PieceType::Xiang, playerColor, 0, 2);
+    content[0][3] = new Piece(PieceType::Shi, playerColor, 0, 3);
+    content[0][4] = new Piece(PieceType::Jiang, playerColor, 0, 4);
+    content[0][5] = new Piece(PieceType::Shi, playerColor, 0, 5);
+    content[0][6] = new Piece(PieceType::Xiang, playerColor, 0, 6);
+    content[0][7] = new Piece(PieceType::Ma, playerColor, 0, 7);
+    content[0][8] = new Piece(PieceType::Che, playerColor, 0, 8);
+    content[2][1] = new Piece(PieceType::Pao, playerColor, 2, 1);
+    content[2][7] = new Piece(PieceType::Pao, playerColor, 2, 7);
+    content[3][0] = new Piece(PieceType::Zu, playerColor, 3, 0);
+    content[3][2] = new Piece(PieceType::Zu, playerColor, 3, 2);
+    content[3][4] = new Piece(PieceType::Zu, playerColor, 3, 4);
+    content[3][6] = new Piece(PieceType::Zu, playerColor, 3, 6);
+    content[3][8] = new Piece(PieceType::Zu, playerColor, 3, 8);
 
     PieceColor rivalColor = PieceColor(~playerColor);
-    content[9][0] = new Piece(PieceType::Che, rivalColor);
-    content[9][1] = new Piece(PieceType::Ma, rivalColor);
-    content[9][2] = new Piece(PieceType::Xiang, rivalColor);
-    content[9][3] = new Piece(PieceType::Shi, rivalColor);
-    content[9][4] = new Piece(PieceType::Jiang, rivalColor);
-    content[9][5] = new Piece(PieceType::Shi, rivalColor);
-    content[9][6] = new Piece(PieceType::Xiang, rivalColor);
-    content[9][7] = new Piece(PieceType::Ma, rivalColor);
-    content[9][8] = new Piece(PieceType::Che, rivalColor);
-    content[7][1] = new Piece(PieceType::Pao, rivalColor);
-    content[7][7] = new Piece(PieceType::Pao, rivalColor);
-    content[6][0] = new Piece(PieceType::Zu, rivalColor);
-    content[6][2] = new Piece(PieceType::Zu, rivalColor);
-    content[6][4] = new Piece(PieceType::Zu, rivalColor);
-    content[6][6] = new Piece(PieceType::Zu, rivalColor);
-    content[6][8] = new Piece(PieceType::Zu, rivalColor);
+    content[9][0] = new Piece(PieceType::Che, rivalColor, 9, 0);
+    content[9][1] = new Piece(PieceType::Ma, rivalColor, 9, 1);
+    content[9][2] = new Piece(PieceType::Xiang, rivalColor, 9, 2);
+    content[9][3] = new Piece(PieceType::Shi, rivalColor, 9, 3);
+    content[9][4] = new Piece(PieceType::Jiang, rivalColor, 9, 4);
+    content[9][5] = new Piece(PieceType::Shi, rivalColor, 9, 5);
+    content[9][6] = new Piece(PieceType::Xiang, rivalColor, 9, 6);
+    content[9][7] = new Piece(PieceType::Ma, rivalColor, 9, 7);
+    content[9][8] = new Piece(PieceType::Che, rivalColor, 9, 8);
+    content[7][1] = new Piece(PieceType::Pao, rivalColor, 7, 1);
+    content[7][7] = new Piece(PieceType::Pao, rivalColor, 7, 7);
+    content[6][0] = new Piece(PieceType::Zu, rivalColor, 6, 0);
+    content[6][2] = new Piece(PieceType::Zu, rivalColor, 6, 2);
+    content[6][4] = new Piece(PieceType::Zu, rivalColor, 6, 4);
+    content[6][6] = new Piece(PieceType::Zu, rivalColor, 6, 6);
+    content[6][8] = new Piece(PieceType::Zu, rivalColor, 6, 8);
 
     for (int i = 0; i < 10; ++i)
         for (int j = 0; j < 9; ++j)
         {
-            if (content[i][j] == nullptr) content[i][j] = new Piece;
+            if (content[i][j] == nullptr) content[i][j] = new Piece(i, j);
             content[i][j]->setPos(getX(j), getY(i));
             addItem(content[i][j]);
         }
 }
-
 
 Board::~Board() noexcept
 {
@@ -161,4 +161,19 @@ Board::~Board() noexcept
         for (int j = 0; j < 9; ++j)
             delete content[i][j];
     delete background;
+}
+
+void Board::mousePressEvent(QGraphicsSceneMouseEvent* event)
+{
+    auto pos = event->lastScenePos();
+    if (!items(pos).isEmpty())
+    {
+        auto focusPiece =  dynamic_cast<Piece*>(items(pos).first());
+        if (focusPiece == nullptr || focusPiece->Invalid || focusPiece->GetColor() != playerColor) return;
+        selectedX = focusPiece->X;
+        selectedY = focusPiece->Y;
+        focusFrame->setPos(getX(selectedY), getY(selectedX));
+        if (focusFrame->scene() != this)
+            addItem(focusFrame);
+    }
 }

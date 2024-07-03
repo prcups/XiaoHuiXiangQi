@@ -32,6 +32,7 @@
 
 #include <QGraphicsScene>
 #include <QPainter>
+#include <QGraphicsSceneMouseEvent>
 #include <QDebug>
 #include "piece.h"
 
@@ -67,7 +68,10 @@ class Board : public QGraphicsScene
     Piece *content[10][9];
     BoardBackground* background;
     PieceColor playerColor = Red;
+    bool selectedMode = 0;
+    int selectedX, selectedY;
     void putPieces();
+    QGraphicsRectItem *focusFrame;
     float getX(int xPos)
     {
         return background->getX(xPos) - 45;
@@ -76,6 +80,7 @@ class Board : public QGraphicsScene
     {
         return background->getY(9 - yPos) - 45;
     }
+    void mousePressEvent ( QGraphicsSceneMouseEvent * event ) override;
 public:
     /**
      * Default constructor

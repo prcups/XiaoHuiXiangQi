@@ -38,7 +38,7 @@ void Piece::paint(QPainter* painter, const QStyleOptionGraphicsItem* option, QWi
 {
     Q_UNUSED(option)
     Q_UNUSED(widget)
-    if (invalid) return;
+    if (Invalid) return;
     painter->setBrush(Qt::green);
     painter->drawEllipse(0, 0, 90, 90);
     QPoint hanziPos = {10, 72};
@@ -102,12 +102,13 @@ void Piece::paint(QPainter* painter, const QStyleOptionGraphicsItem* option, QWi
     painter->drawText(hanziPos, hanzi);
 }
 
-Piece::Piece(PieceType type, PieceColor color)
-:type(type), color(color) {}
+Piece::Piece(PieceType type, PieceColor color, int x, int y)
+:type(type), color(color), X(x), Y(y) {}
 
-Piece::Piece()
+Piece::Piece(int x, int y)
+:X(x), Y(y)
 {
-    invalid = 1;
+    Invalid = 1;
 }
 
 Piece::Piece(const Piece& p)
@@ -115,7 +116,7 @@ Piece::Piece(const Piece& p)
 
 Piece & Piece::operator=(const Piece& p)
 {
-    if (p.invalid) invalid = 1;
+    if (p.Invalid) Invalid = 1;
     else
     {
         type = p.type;
