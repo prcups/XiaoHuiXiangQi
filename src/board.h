@@ -69,7 +69,7 @@ class Board : public QGraphicsScene
     BoardBackground* background;
     PieceColor playerColor = Red;
     bool selectedMode = 0;
-    int selectedX, selectedY;
+    Piece *selectedPiece;
     void putPieces();
     QGraphicsRectItem *focusFrame;
     float getX(int xPos)
@@ -88,7 +88,7 @@ public:
      */
     Board();
     ~Board() noexcept;
-    void Move(int fromX, int fromY, int toX, int toY);
+    void Move(Piece *from, Piece *to);
 };
 
 #endif // BOARD_H

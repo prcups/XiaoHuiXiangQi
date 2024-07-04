@@ -54,6 +54,8 @@ class Piece : public QGraphicsObject
     PieceColor color;
     QRectF boundingRect() const override;
     void paint ( QPainter * painter, const QStyleOptionGraphicsItem * option, QWidget * widget ) override;
+    //void mousePressEvent ( QGraphicsSceneMouseEvent * event ) override;
+    //void mouseReleaseEvent ( QGraphicsSceneMouseEvent * event ) override;
 public:
     Piece(PieceType type, PieceColor color, int x, int y);
     Piece(int x, int y);

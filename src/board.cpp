@@ -170,10 +170,10 @@ void Board::mousePressEvent(QGraphicsSceneMouseEvent* event)
     {
         auto clickedPiece =  dynamic_cast<Piece*>(items(pos).first());
         if (clickedPiece == nullptr || clickedPiece->Invalid || clickedPiece->GetColor() != playerColor) return;
-        selectedX = clickedPiece->X;
-        selectedY = clickedPiece->Y;
+        selectedPiece = clickedPiece;
         selectedMode = 1;
-        focusFrame->setPos(getX(selectedY), getY(selectedX));
+        focusFrame->setPos(getX(selectedPiece->Y), getY(selectedPiece->X));
+        sendEvent(clickedPiece, event);
         if (focusFrame->scene() != this)
             addItem(focusFrame);
     }
@@ -186,24 +186,25 @@ void Board::mouseReleaseEvent(QGraphicsSceneMouseEvent* event)
     if (!items(pos).isEmpty())
     {
         auto clickedPiece =  dynamic_cast<Piece*>(items(pos).first());
-        if (clickedPiece == nullptr || clickedPiece->Invalid != 1) return;
-        Move(selectedX, selectedY, clickedPiece->X, clickedPiece->Y);
+        if (clickedPiece == nullptr
+            || (clickedPiece->Invalid == 0
+            && clickedPiece->GetColor() == selectedPiece->GetColor())) return;
+        Move(selectedPiece, clickedPiece);
         removeItem(focusFrame);
         selectedMode = 0;
     }
 }
 
-void Board::Move(int fromX, int fromY, int toX, int toY)
+void Board::Move(Piece* from, Piece* to)
 {
-    content[fromX][fromY]->setPos(getX(toY), getY(toX));
-    content[toX][toY]->setPos(getX(fromY), getY(fromX));
-    content[fromX][fromY]->X = toX;
-    content[fromX][fromY]->Y = toY;
-    content[toX][toY]->X = fromX;
-    content[toX][toY]->Y = fromY;
-    auto pt = content[fromX][fromY];
-    content[fromX][fromY] = content[toX][toY];
-    content[toX][toY] = pt;
+    auto toX = to->X, toY = to->Y;
+    removeItem(to);
+    delete content[toX][toY];
+    content[toX][toY] = from;
+    content[from->X][from->Y] = new Piece(from->X, from->Y);
+    addItem(content[from->X][from->Y]);
+    content[from->X][from->Y]->setPos(getX(from->Y), getY(from->X));
+    from->setPos(getX(toY), getY(toX));
+    from->X = toX;
+    from->Y = toY;
 }
-
-

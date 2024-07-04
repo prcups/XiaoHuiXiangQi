@@ -112,7 +112,14 @@ Piece::Piece(int x, int y)
 }
 
 Piece::Piece(const Piece& p)
-:type(p.type), color(p.color) {}
+{
+    if (p.Invalid) Invalid = 1;
+    else
+    {
+        type = p.type;
+        color = p.color;
+    }
+}
 
 Piece & Piece::operator=(const Piece& p)
 {
