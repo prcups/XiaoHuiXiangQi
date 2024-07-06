@@ -101,58 +101,100 @@ Board::Board()
 {
     background = new BoardBackground;
     addItem(background);
-    putPieces();
+    putPieces(QString("rnbakabnr/9/1c5c1/p1p1p1p1p/9/9/P1P1P1P1P/1C5C1/9/RNBAKABNR"));
+    playerColor = Red;
     focusFrame = new QGraphicsRectItem(0, 0, 90, 90);
 }
 
-void Board::putPieces()
+bool Board::putPieces(QStringView fenMain)
 {
     for (int i = 0; i < 10; ++i)
         for (int j = 0; j < 9; ++j)
             content[i][j] = nullptr;
 
-    content[0][0] = new Piece(PieceType::Che, playerColor, 0, 0);
-    content[0][1] = new Piece(PieceType::Ma, playerColor, 0, 1);
-    content[0][2] = new Piece(PieceType::Xiang, playerColor, 0, 2);
-    content[0][3] = new Piece(PieceType::Shi, playerColor, 0, 3);
-    content[0][4] = new Piece(PieceType::Jiang, playerColor, 0, 4);
-    content[0][5] = new Piece(PieceType::Shi, playerColor, 0, 5);
-    content[0][6] = new Piece(PieceType::Xiang, playerColor, 0, 6);
-    content[0][7] = new Piece(PieceType::Ma, playerColor, 0, 7);
-    content[0][8] = new Piece(PieceType::Che, playerColor, 0, 8);
-    content[2][1] = new Piece(PieceType::Pao, playerColor, 2, 1);
-    content[2][7] = new Piece(PieceType::Pao, playerColor, 2, 7);
-    content[3][0] = new Piece(PieceType::Zu, playerColor, 3, 0);
-    content[3][2] = new Piece(PieceType::Zu, playerColor, 3, 2);
-    content[3][4] = new Piece(PieceType::Zu, playerColor, 3, 4);
-    content[3][6] = new Piece(PieceType::Zu, playerColor, 3, 6);
-    content[3][8] = new Piece(PieceType::Zu, playerColor, 3, 8);
-
-    PieceColor rivalColor = PieceColor(~playerColor);
-    content[9][0] = new Piece(PieceType::Che, rivalColor, 9, 0);
-    content[9][1] = new Piece(PieceType::Ma, rivalColor, 9, 1);
-    content[9][2] = new Piece(PieceType::Xiang, rivalColor, 9, 2);
-    content[9][3] = new Piece(PieceType::Shi, rivalColor, 9, 3);
-    content[9][4] = new Piece(PieceType::Jiang, rivalColor, 9, 4);
-    content[9][5] = new Piece(PieceType::Shi, rivalColor, 9, 5);
-    content[9][6] = new Piece(PieceType::Xiang, rivalColor, 9, 6);
-    content[9][7] = new Piece(PieceType::Ma, rivalColor, 9, 7);
-    content[9][8] = new Piece(PieceType::Che, rivalColor, 9, 8);
-    content[7][1] = new Piece(PieceType::Pao, rivalColor, 7, 1);
-    content[7][7] = new Piece(PieceType::Pao, rivalColor, 7, 7);
-    content[6][0] = new Piece(PieceType::Zu, rivalColor, 6, 0);
-    content[6][2] = new Piece(PieceType::Zu, rivalColor, 6, 2);
-    content[6][4] = new Piece(PieceType::Zu, rivalColor, 6, 4);
-    content[6][6] = new Piece(PieceType::Zu, rivalColor, 6, 6);
-    content[6][8] = new Piece(PieceType::Zu, rivalColor, 6, 8);
-
-    for (int i = 0; i < 10; ++i)
-        for (int j = 0; j < 9; ++j)
+    int line = 9, column = 0;
+    for (QChar t : fenMain)
+    {
+        if (line < 0) return false;
+        switch (t.unicode())
         {
-            if (content[i][j] == nullptr) content[i][j] = new Piece(i, j);
-            content[i][j]->setPos(getX(j), getY(i));
-            addItem(content[i][j]);
+            case 'r':
+            case 'R':
+                if (column > 8) return false;
+                content[line][column] = new Piece(Che, t.isLower() ? Black : Red, line, column);
+                content[line][column]->setPos(getX(column), getY(line));
+                addItem(content[line][column]);
+                ++column;
+                break;
+            case 'n':
+            case 'N':
+                if (column > 8) return false;
+                content[line][column] = new Piece(Ma, t.isLower() ? Black : Red, line, column);
+                content[line][column]->setPos(getX(column), getY(line));
+                addItem(content[line][column]);
+                ++column;
+                break;
+            case 'b':
+            case 'B':
+                if (column > 8) return false;
+                content[line][column] = new Piece(Xiang, t.isLower() ? Black : Red, line, column);
+                content[line][column]->setPos(getX(column), getY(line));
+                addItem(content[line][column]);
+                ++column;
+                break;
+            case 'a':
+            case 'A':
+                if (column > 8) return false;
+                content[line][column] = new Piece(Shi, t.isLower() ? Black : Red, line, column);
+                content[line][column]->setPos(getX(column), getY(line));
+                addItem(content[line][column]);
+                ++column;
+                break;
+            case 'k':
+            case 'K':
+                if (column > 8) return false;
+                content[line][column] = new Piece(Jiang, t.isLower() ? Black : Red, line, column);
+                content[line][column]->setPos(getX(column), getY(line));
+                addItem(content[line][column]);
+                ++column;
+                break;
+            case 'c':
+            case 'C':
+                if (column > 8) return false;
+                content[line][column] = new Piece(Pao, t.isLower() ? Black : Red, line, column);
+                content[line][column]->setPos(getX(column), getY(line));
+                addItem(content[line][column]);
+                ++column;
+                break;
+            case 'p':
+            case 'P':
+                if (column > 8) return false;
+                content[line][column] = new Piece(Zu, t.isLower() ? Black : Red, line, column);
+                content[line][column]->setPos(getX(column), getY(line));
+                addItem(content[line][column]);
+                ++column;
+                break;
+            case '/':
+                if (column != 9) return false;
+                column = 0;
+                --line;
+                break;
+            case '0'...'9':
+                for (int i = t.unicode() - '0'; i > 0; --i)
+                {
+                    if (column > 8) return false;
+                    content[line][column] = new Piece(line, column);
+                    content[line][column]->setPos(getX(column), getY(line));
+                    addItem(content[line][column]);
+                    ++column;
+                }
+                break;
+            default:
+                return false;
         }
+    }
+    if (line != -1) return false;
+    return true;
 }
 
 Board::~Board() noexcept

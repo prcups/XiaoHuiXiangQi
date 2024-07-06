@@ -34,6 +34,7 @@
 #include <QPainter>
 #include <QGraphicsSceneMouseEvent>
 #include <QDebug>
+#include <QStringView>
 #include "piece.h"
 
 /**
@@ -67,10 +68,10 @@ class Board : public QGraphicsScene
     Q_OBJECT
     Piece *content[10][9];
     BoardBackground* background;
-    PieceColor playerColor = Red;
-    bool selectedMode = 0;
+    PieceColor playerColor;
+    bool selectedMode = 0, statusOk = 0;
     Piece *selectedPiece;
-    void putPieces();
+    bool putPieces(QStringView fenMain);
     QGraphicsRectItem *focusFrame;
     float getX(int xPos)
     {
@@ -87,6 +88,7 @@ public:
      * Default constructor
      */
     Board();
+    //Board(QString fen);
     ~Board() noexcept;
     void Move(Piece *from, Piece *to);
 };
