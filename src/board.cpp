@@ -31,7 +31,7 @@
 
 QRectF BoardBackground::boundingRect() const
 {
-    return  QRectF(0, 0, 960, 1280);
+    return QRectF(0, 0, 960, 1120);
 }
 
 BoardBackground::BoardBackground()
@@ -39,24 +39,29 @@ BoardBackground::BoardBackground()
     auto rect = boundingRect();
     if (rect.height() / 9 > rect.width() / 8)
     {
-        widthMargin = 20;
-        heightMargin = (rect.height() - rect.width() / 8 * 9) / 2 + 20;
+        widthMargin = 60;
+        heightMargin = (rect.height() - rect.width() / 8 * 9) / 2 + 60;
     }else
     {
-        heightMargin = 20;
-        widthMargin = (rect.width() - rect.height() / 9 * 8) / 2 + 20;
+        heightMargin = 60;
+        widthMargin = (rect.width() - rect.height() / 9 * 8) / 2 + 60;
     }
     boardLeft = rect.x() + widthMargin;
     boardTop = rect.y() + heightMargin;
     boardRight = rect.x() + rect.width() - widthMargin;
     boardBottom = rect.y() + rect.height() - heightMargin;
-    lineDis = (boardBottom - boardTop) / 9;
+    heightDis = (boardBottom - boardTop) / 9;
+    widthDis = (boardRight - boardLeft) / 8;
 }
 
 void BoardBackground::paint(QPainter* painter, const QStyleOptionGraphicsItem* option, QWidget* widget)
 {
     Q_UNUSED(option)
     Q_UNUSED(widget)
+
+    painter->setBrush(QColor(131, 203, 172, 127));
+    painter->drawRect(boundingRect());
+    painter->setBrush(Qt::transparent);
 
     painter->drawRect(boardLeft, boardTop, boardRight - boardLeft, boardBottom - boardTop);
     for (int i = 1; i < 9; ++i)

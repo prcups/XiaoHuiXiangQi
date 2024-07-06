@@ -39,13 +39,13 @@ void Piece::paint(QPainter* painter, const QStyleOptionGraphicsItem* option, QWi
     Q_UNUSED(option)
     Q_UNUSED(widget)
     if (Invalid) return;
-    painter->setBrush(Qt::green);
-    painter->drawEllipse(0, 0, 90, 90);
+    painter->setPen(Qt::white);
     QPoint hanziPos = {10, 72};
     QString hanzi;
     if (color == Red)
     {
-        painter->setPen(Qt::red);
+        painter->setBrush(Qt::red);
+        painter->drawEllipse(0, 0, 90, 90);
         switch (type)
         {
             case PieceType::Jiang:
@@ -72,6 +72,8 @@ void Piece::paint(QPainter* painter, const QStyleOptionGraphicsItem* option, QWi
     }
     else
     {
+        painter->setBrush(Qt::black);
+        painter->drawEllipse(0, 0, 90, 90);
         switch (type)
         {
             case PieceType::Jiang:

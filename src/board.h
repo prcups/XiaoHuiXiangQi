@@ -47,17 +47,17 @@ class Board;
 class BoardBackground : public QGraphicsItem
 {
     float boardLeft, boardTop, boardBottom, boardRight,
-        lineDis, heightMargin, widthMargin;
+          heightDis, widthDis, heightMargin, widthMargin;
     void drawSoldierPos(QPainter *painter, int xPos, int yPos);
     QRectF boundingRect() const override;
     void paint ( QPainter * painter, const QStyleOptionGraphicsItem * option, QWidget * widget ) override;
     float getX(int xPos)
     {
-        return boardLeft + xPos * lineDis;
+        return boardLeft + xPos * widthDis;
     }
     float getY(int yPos)
     {
-        return boardTop + yPos * lineDis;
+        return boardTop + yPos * heightDis;
     }
 public:
     friend Board;
