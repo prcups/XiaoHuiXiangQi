@@ -35,6 +35,7 @@
 #include <QGraphicsSceneMouseEvent>
 #include <QDebug>
 #include <QStringView>
+#include <QErrorMessage>
 #include "piece.h"
 
 /**
@@ -88,7 +89,7 @@ public:
      * Default constructor
      */
     Board();
-    //Board(QString fen);
+    Board(QString fen);
     ~Board() noexcept;
     void Move(Piece *from, Piece *to);
 };

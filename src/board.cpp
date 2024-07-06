@@ -101,9 +101,21 @@ Board::Board()
 {
     background = new BoardBackground;
     addItem(background);
+    focusFrame = new QGraphicsRectItem(0, 0, 90, 90);
     putPieces(QString("rnbakabnr/9/1c5c1/p1p1p1p1p/9/9/P1P1P1P1P/1C5C1/9/RNBAKABNR"));
     playerColor = Red;
+}
+
+Board::Board(QString fen)
+{
+    background = new BoardBackground;
+    addItem(background);
     focusFrame = new QGraphicsRectItem(0, 0, 90, 90);
+    auto fenList = fen.split(' ');
+    if (fenList.size() != 6) throw("invalid");
+    if (!putPieces(fenList[0])) throw("invalid");
+    if (fenList[1] == "b") playerColor = Black;
+    else playerColor = Red;
 }
 
 bool Board::putPieces(QStringView fenMain)
