@@ -73,6 +73,7 @@ class Board : public QGraphicsScene
     bool selectedMode = 0, statusOk = 0;
     Piece *selectedPiece;
     bool putPieces(QStringView fenMain);
+    int moveNumber;
     QGraphicsRectItem *focusFrame;
     float getX(int xPos)
     {
@@ -92,6 +93,7 @@ public:
     Board(QString fen);
     ~Board() noexcept;
     void Move(Piece *from, Piece *to);
+    QString ToFenString();
 };
 
 #endif // BOARD_H

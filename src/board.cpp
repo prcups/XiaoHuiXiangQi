@@ -109,6 +109,7 @@ Board::Board()
     focusFrame = new QGraphicsRectItem(0, 0, 90, 90);
     putPieces(QString("rnbakabnr/9/1c5c1/p1p1p1p1p/9/9/P1P1P1P1P/1C5C1/9/RNBAKABNR"));
     playerColor = Red;
+    moveNumber = 0;
 }
 
 Board::Board(QString fen)
@@ -121,6 +122,7 @@ Board::Board(QString fen)
     if (!putPieces(fenList[0])) throw("invalid");
     if (fenList[1] == "b") playerColor = Black;
     else playerColor = Red;
+    moveNumber = fenList[5].toInt();
 }
 
 bool Board::putPieces(QStringView fenMain)
@@ -266,4 +268,86 @@ void Board::Move(Piece* from, Piece* to)
     from->setPos(getX(toY), getY(toX));
     from->X = toX;
     from->Y = toY;
+    ++moveNumber;
 }
+
+QString Board::ToFenString()
+{
+    QString fen;
+    short invalidCount = 0;
+    for (int i = 9; i >= 0; --i)
+        for (int j = 0; j < 9; ++j)
+        {
+            if (content[i][j]->Invalid)
+                ++invalidCount;
+            else
+            {
+                if (invalidCount != 0) fen.append(QString::number(invalidCount));
+                invalidCount = 0;
+                if (content[i][j]->GetColor() == Black)
+                {
+                    switch (content[i][j]->GetType())
+                    {
+                        case Che:
+                            fen.append('r');
+                            break;
+                        case Pao:
+                            fen.append('c');
+                            break;
+                        case Ma:
+                            fen.append('n');
+                            break;
+                        case Zu:
+                            fen.append('p');
+                            break;
+                        case Xiang:
+                            fen.append('b');
+                            break;
+                        case Shi:
+                            fen.append('a');
+                            break;
+                        case Jiang:
+                            fen.append('k');
+                    }
+                }
+                else
+                {
+                    switch (content[i][j]->GetType())
+                    {
+                        case Che:
+                            fen.append('R');
+                            break;
+                        case Pao:
+                            fen.append('C');
+                            break;
+                        case Ma:
+                            fen.append('N');
+                            break;
+                        case Zu:
+                            fen.append('P');
+                            break;
+                        case Xiang:
+                            fen.append('B');
+                            break;
+                        case Shi:
+                            fen.append('A');
+                            break;
+                        case Jiang:
+                            fen.append('K');
+                    }
+                }
+            }
+            if (j == 8)
+            {
+                if (invalidCount != 0) fen.append(QString::number(invalidCount));
+                invalidCount = 0;
+                if (i != 0) fen.append('/');
+            }
+        }
+    if (playerColor == Black) fen.append(" b");
+    else fen.append(" w");
+    fen.append(" - - 0 ");
+    fen.append(QString::number(moveNumber));
+    return fen;
+}
+
