@@ -37,6 +37,7 @@
 #include <QStringView>
 #include <QErrorMessage>
 #include "piece.h"
+#include "player.h"
 
 /**
  * @todo write docs
@@ -64,25 +65,25 @@ public:
     BoardBackground();
 };
 
+class Player;
+
 class Board : public QGraphicsScene
 {
     Q_OBJECT
     Piece *content[10][9];
     BoardBackground* background;
-    PieceColor playerColor;
+    Player *player[2];
+    int playerColor;
     bool selectedMode = 0, statusOk = 0;
     Piece *selectedPiece;
-    bool putPieces(QStringView fenMain);
     int moveNumber;
     QGraphicsRectItem *focusFrame;
-    float getX(int xPos)
-    {
-        return background->getX(xPos) - 45;
-    }
-    float getY(int yPos)
-    {
-        return background->getY(9 - yPos) - 45;
-    }
+
+    void initBoard();
+    bool putPieces(QStringView fenMain);
+    void changePlayer();
+    float getX(int xPos);
+    float getY(int yPos);
     void mousePressEvent ( QGraphicsSceneMouseEvent * event ) override;
     void mouseReleaseEvent ( QGraphicsSceneMouseEvent * event ) override;
 public:

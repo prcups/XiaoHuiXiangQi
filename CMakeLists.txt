@@ -16,6 +16,7 @@ set(xiaohuixiangqi_SRC
   src/mainwindow.cpp
   src/board.cpp
   src/piece.cpp
+  src/player.cpp
 )
 
 # Tell CMake to create the helloworld executable

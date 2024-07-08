@@ -34,7 +34,6 @@
 #include <QMenuBar>
 #include <QGraphicsView>
 #include <QPointer>
-#include <QDebug>
 #include "board.h"
 
 class BoardView : public QGraphicsView
@@ -47,8 +46,8 @@ class MainWindow : public QMainWindow
 {
     Q_OBJECT
 
-    QPointer<Board> boardModel;
-    QPointer<BoardView> boardView;
+    Board *board;
+    BoardView *boardView;
 public:
     /**
      * Default constructor

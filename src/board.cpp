@@ -104,9 +104,7 @@ void BoardBackground::drawSoldierPos(QPainter* painter, int xPos, int yPos)
 
 Board::Board()
 {
-    background = new BoardBackground;
-    addItem(background);
-    focusFrame = new QGraphicsRectItem(0, 0, 90, 90);
+    initBoard();
     putPieces(QString("rnbakabnr/9/1c5c1/p1p1p1p1p/9/9/P1P1P1P1P/1C5C1/9/RNBAKABNR"));
     playerColor = Red;
     moveNumber = 0;
@@ -114,15 +112,22 @@ Board::Board()
 
 Board::Board(QString fen)
 {
-    background = new BoardBackground;
-    addItem(background);
-    focusFrame = new QGraphicsRectItem(0, 0, 90, 90);
+    initBoard();
     auto fenList = fen.split(' ');
     if (fenList.size() != 6) throw("invalid");
     if (!putPieces(fenList[0])) throw("invalid");
     if (fenList[1] == "b") playerColor = Black;
     else playerColor = Red;
     moveNumber = fenList[5].toInt();
+}
+
+void Board::initBoard()
+{
+    background = new BoardBackground;
+    addItem(background);
+    focusFrame = new QGraphicsRectItem(0, 0, 90, 90);
+    player[Red] = new Player(this, Red);
+    player[Black] = new Player(this, Black);
 }
 
 bool Board::putPieces(QStringView fenMain)
@@ -269,6 +274,7 @@ void Board::Move(Piece* from, Piece* to)
     from->X = toX;
     from->Y = toY;
     ++moveNumber;
+    changePlayer();
 }
 
 QString Board::ToFenString()
@@ -349,5 +355,20 @@ QString Board::ToFenString()
     fen.append(" - - 0 ");
     fen.append(QString::number(moveNumber));
     return fen;
+}
+
+float Board::getY ( int yPos )
+{
+    return background->getY ( 9 - yPos ) - 45;
+}
+
+float Board::getX ( int xPos )
+{
+    return background->getX ( xPos ) - 45;
+}
+
+void Board::changePlayer()
+{
+    playerColor ^= 1;
 }
 

@@ -27,23 +27,9 @@
 // the provisions above, a recipient may use your version of this file
 // under either the MPL or the [___] License."
 
-#include "mainwindow.h"
+#include "player.h"
 
-void BoardView::resizeEvent(QResizeEvent* event)
-{
-    fitInView(sceneRect(), Qt::KeepAspectRatio);
-}
+Player::~Player() = default;
 
-MainWindow::MainWindow()
-{
-    board = new Board;
-    boardView = new BoardView(board);
-    this->setCentralWidget(boardView);
-    this->setMinimumSize(480, 540);
-}
-
-MainWindow::~MainWindow()
-{
-    delete boardView;
-    delete board;
-}
+Player::Player(Board *board, PieceColor color)
+:playerColor(color), board(board) {}

@@ -42,7 +42,7 @@ enum PieceType
 
 enum PieceColor
 {
-    Red, Black
+    Red = 0, Black = 1
 };
 
 /**
