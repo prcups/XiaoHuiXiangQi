@@ -143,3 +143,13 @@ PieceType Piece::GetType()
 {
     return type;
 }
+
+QPixmap Piece::GetPixmap()
+{
+    QPixmap pixmap(boundingRect().size().toSize());
+    pixmap.fill(Qt::transparent);
+    QPainter painter(&pixmap);
+    paint(&painter, nullptr, nullptr);
+    return pixmap;
+}
+

@@ -238,8 +238,8 @@ void Board::mousePressEvent(QGraphicsSceneMouseEvent* event)
         if (clickedPiece == nullptr || clickedPiece->Invalid || clickedPiece->GetColor() != playerColor) return;
         selectedPiece = clickedPiece;
         selectedMode = 1;
-        focusFrame->setPos(getX(selectedPiece->Y), getY(selectedPiece->X));
         sendEvent(clickedPiece, event);
+        focusFrame->setPos(getX(selectedPiece->Y), getY(selectedPiece->X));
         if (focusFrame->scene() != this)
             addItem(focusFrame);
     }
@@ -256,8 +256,29 @@ void Board::mouseReleaseEvent(QGraphicsSceneMouseEvent* event)
             || (clickedPiece->Invalid == 0
             && clickedPiece->GetColor() == selectedPiece->GetColor())) return;
         Move(selectedPiece, clickedPiece);
+        sendEvent(selectedPiece, event);
         removeItem(focusFrame);
         selectedMode = 0;
+    }
+}
+
+void Board::mouseMoveEvent(QGraphicsSceneMouseEvent* event)
+{
+    if (QLineF(event->screenPos(), event->buttonDownScreenPos(Qt::LeftButton))
+        .length() < QApplication::startDragDistance()) {
+        return;
+    }
+
+    if (selectedMode == 0) return;
+    auto pos = event->lastScenePos();
+    if (selectedPiece->contains(selectedPiece->mapFromScene(pos)))
+    {
+        QDrag *drag = new QDrag(event->widget());
+        QMimeData *mime = new QMimeData;
+        mime->setText("xhxq");
+        drag->setMimeData(mime);
+        drag->setPixmap(selectedPiece->GetPixmap());
+        drag->exec();
     }
 }
 
@@ -371,4 +392,27 @@ void Board::changePlayer()
 {
     playerColor ^= 1;
 }
+
+void Board::dragMoveEvent(QGraphicsSceneDragDropEvent* event)
+{
+    if (event->mimeData()->text() != "xhxq") return;
+}
+
+void Board::dropEvent(QGraphicsSceneDragDropEvent* event)
+{
+    if (selectedMode == 0) return;
+    auto pos = event->scenePos();
+    if (!items(pos).isEmpty())
+    {
+        auto clickedPiece =  dynamic_cast<Piece*>(items(pos).first());
+        if (clickedPiece == nullptr
+            || (clickedPiece->Invalid == 0
+            && clickedPiece->GetColor() == selectedPiece->GetColor())) return;
+        Move(selectedPiece, clickedPiece);
+        sendEvent(selectedPiece, event);
+        removeItem(focusFrame);
+        selectedMode = 0;
+    }
+}
+
 

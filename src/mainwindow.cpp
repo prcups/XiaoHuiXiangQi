@@ -34,6 +34,12 @@ void BoardView::resizeEvent(QResizeEvent* event)
     fitInView(sceneRect(), Qt::KeepAspectRatio);
 }
 
+BoardView::BoardView(Board* board)
+:QGraphicsView(board)
+{
+    setAcceptDrops(true);
+}
+
 MainWindow::MainWindow()
 {
     board = new Board;

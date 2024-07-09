@@ -86,6 +86,10 @@ class Board : public QGraphicsScene
     float getY(int yPos);
     void mousePressEvent ( QGraphicsSceneMouseEvent * event ) override;
     void mouseReleaseEvent ( QGraphicsSceneMouseEvent * event ) override;
+    void mouseMoveEvent ( QGraphicsSceneMouseEvent * event ) override;
+    void dragMoveEvent(QGraphicsSceneDragDropEvent *event) override;
+    void dropEvent(QGraphicsSceneDragDropEvent *event) override;
+
 public:
     /**
      * Default constructor

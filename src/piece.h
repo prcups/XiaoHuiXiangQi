@@ -34,6 +34,10 @@
 #include <QPainter>
 #include <QWidget>
 #include <QDebug>
+#include <QGraphicsSceneMouseEvent>
+#include <QApplication>
+#include <QDrag>
+#include <QMimeData>
 
 enum PieceType
 {
@@ -58,6 +62,7 @@ public:
     Piece(PieceType type, PieceColor color, int x, int y);
     Piece(int x, int y);
     Piece(const Piece &p);
+    QPixmap GetPixmap();
     Piece & operator = (const Piece &p);
     PieceType GetType();
     PieceColor GetColor();

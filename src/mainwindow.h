@@ -39,7 +39,8 @@
 class BoardView : public QGraphicsView
 {
     void resizeEvent ( QResizeEvent * event ) override;
-    using QGraphicsView::QGraphicsView;
+public:
+    BoardView(Board* board);
 };
 
 class MainWindow : public QMainWindow
