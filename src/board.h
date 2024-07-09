@@ -35,7 +35,7 @@
 #include <QGraphicsSceneMouseEvent>
 #include <QDebug>
 #include <QStringView>
-#include <QErrorMessage>
+#include <QPropertyAnimation>
 #include "piece.h"
 #include "player.h"
 

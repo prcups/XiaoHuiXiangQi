@@ -291,7 +291,10 @@ void Board::Move(Piece* from, Piece* to)
     content[from->X][from->Y] = new Piece(from->X, from->Y);
     addItem(content[from->X][from->Y]);
     content[from->X][from->Y]->setPos(getX(from->Y), getY(from->X));
-    from->setPos(getX(toY), getY(toX));
+    QPropertyAnimation *animation = new QPropertyAnimation(from, "pos");
+    animation->setDuration(100);
+    animation->setEndValue(QPointF(getX(toY), getY(toX)));
+    animation->start();
     from->X = toX;
     from->Y = toY;
     ++moveNumber;
