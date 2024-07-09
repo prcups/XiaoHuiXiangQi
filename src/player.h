@@ -52,6 +52,7 @@ public:
      * Default constructor
      */
     Player(Board *board, PieceColor color);
+    void Go();
 };
 
 Q_DECLARE_INTERFACE ( Player, "Player" )

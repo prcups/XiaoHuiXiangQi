@@ -107,6 +107,7 @@ Board::Board()
     initBoard();
     putPieces(QString("rnbakabnr/9/1c5c1/p1p1p1p1p/9/9/P1P1P1P1P/1C5C1/9/RNBAKABNR"));
     playerColor = Red;
+    setMovable();
     moveNumber = 0;
 }
 
@@ -118,6 +119,7 @@ Board::Board(QString fen)
     if (!putPieces(fenList[0])) throw("invalid");
     if (fenList[1] == "b") playerColor = Black;
     else playerColor = Red;
+    setMovable();
     moveNumber = fenList[5].toInt();
 }
 
@@ -231,13 +233,14 @@ Board::~Board() noexcept
 
 void Board::mousePressEvent(QGraphicsSceneMouseEvent* event)
 {
+    if (status == BannedOperation) return;
     auto pos = event->lastScenePos();
     if (!items(pos).isEmpty())
     {
         auto clickedPiece =  dynamic_cast<Piece*>(items(pos).first());
         if (clickedPiece == nullptr || clickedPiece->Invalid || clickedPiece->GetColor() != playerColor) return;
         selectedPiece = clickedPiece;
-        selectedMode = 1;
+        status = Selected;
         sendEvent(clickedPiece, event);
         focusFrame->setPos(getX(selectedPiece->Y), getY(selectedPiece->X));
         if (focusFrame->scene() != this)
@@ -247,7 +250,7 @@ void Board::mousePressEvent(QGraphicsSceneMouseEvent* event)
 
 void Board::mouseReleaseEvent(QGraphicsSceneMouseEvent* event)
 {
-    if (selectedMode == 0) return;
+    if (status != Selected) return;
     auto pos = event->lastScenePos();
     if (!items(pos).isEmpty())
     {
@@ -256,9 +259,9 @@ void Board::mouseReleaseEvent(QGraphicsSceneMouseEvent* event)
             || (clickedPiece->Invalid == 0
             && clickedPiece->GetColor() == selectedPiece->GetColor())) return;
         Move(selectedPiece, clickedPiece);
+        changePlayer();
         sendEvent(selectedPiece, event);
         removeItem(focusFrame);
-        selectedMode = 0;
     }
 }
 
@@ -269,7 +272,7 @@ void Board::mouseMoveEvent(QGraphicsSceneMouseEvent* event)
         return;
     }
 
-    if (selectedMode == 0) return;
+    if (status != Selected) return;
     auto pos = event->lastScenePos();
     if (selectedPiece->contains(selectedPiece->mapFromScene(pos)))
     {
@@ -298,7 +301,6 @@ void Board::Move(Piece* from, Piece* to)
     from->X = toX;
     from->Y = toY;
     ++moveNumber;
-    changePlayer();
 }
 
 QString Board::ToFenString()
@@ -393,7 +395,9 @@ float Board::getX ( int xPos )
 
 void Board::changePlayer()
 {
+    status = BannedOperation;
     playerColor ^= 1;
+    player[playerColor]->Go();
 }
 
 void Board::dragMoveEvent(QGraphicsSceneDragDropEvent* event)
@@ -403,7 +407,7 @@ void Board::dragMoveEvent(QGraphicsSceneDragDropEvent* event)
 
 void Board::dropEvent(QGraphicsSceneDragDropEvent* event)
 {
-    if (selectedMode == 0) return;
+    if (status != Selected) return;
     auto pos = event->scenePos();
     if (!items(pos).isEmpty())
     {
@@ -412,10 +416,12 @@ void Board::dropEvent(QGraphicsSceneDragDropEvent* event)
             || (clickedPiece->Invalid == 0
             && clickedPiece->GetColor() == selectedPiece->GetColor())) return;
         Move(selectedPiece, clickedPiece);
-        sendEvent(selectedPiece, event);
         removeItem(focusFrame);
-        selectedMode = 0;
+        changePlayer();
     }
 }
 
-
+void Board::setMovable()
+{
+    status = Prepared;
+}

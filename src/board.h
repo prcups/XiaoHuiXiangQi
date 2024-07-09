@@ -67,6 +67,11 @@ public:
 
 class Player;
 
+enum BoardStatus
+{
+    BannedOperation, Prepared, Selected
+};
+
 class Board : public QGraphicsScene
 {
     Q_OBJECT
@@ -74,7 +79,7 @@ class Board : public QGraphicsScene
     BoardBackground* background;
     Player *player[2];
     int playerColor;
-    bool selectedMode = 0, statusOk = 0;
+    BoardStatus status = BannedOperation;
     Piece *selectedPiece;
     int moveNumber;
     QGraphicsRectItem *focusFrame;
@@ -98,6 +103,7 @@ public:
     Board(QString fen);
     ~Board() noexcept;
     void Move(Piece *from, Piece *to);
+    void setMovable();
     QString ToFenString();
 };
 

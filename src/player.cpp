@@ -33,3 +33,8 @@ Player::~Player() = default;
 
 Player::Player(Board *board, PieceColor color)
 :playerColor(color), board(board) {}
+
+void Player::Go()
+{
+    board->setMovable();
+}
