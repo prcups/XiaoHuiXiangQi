@@ -69,7 +69,7 @@ class Player;
 
 enum BoardStatus
 {
-    BannedOperation, Prepared, Selected
+    BoardBanned, BoardPrepared, PieceSelected
 };
 
 class Board : public QGraphicsScene
@@ -79,7 +79,7 @@ class Board : public QGraphicsScene
     BoardBackground* background;
     Player *player[2];
     int playerColor;
-    BoardStatus status = BannedOperation;
+    BoardStatus status = BoardBanned;
     Piece *selectedPiece;
     int moveNumber;
     QGraphicsRectItem *focusFrame;

@@ -129,7 +129,7 @@ void Board::initBoard()
     addItem(background);
     focusFrame = new QGraphicsRectItem(0, 0, 90, 90);
     player[Red] = new Player(this, Red);
-    player[Black] = new Player(this, Black);
+    player[Black] = new Engine(this, Black, "./pikafish");
 }
 
 bool Board::putPieces(QStringView fenMain)
@@ -233,14 +233,14 @@ Board::~Board() noexcept
 
 void Board::mousePressEvent(QGraphicsSceneMouseEvent* event)
 {
-    if (status == BannedOperation) return;
+    if (status == BoardBanned) return;
     auto pos = event->lastScenePos();
     if (!items(pos).isEmpty())
     {
         auto clickedPiece =  dynamic_cast<Piece*>(items(pos).first());
         if (clickedPiece == nullptr || clickedPiece->Invalid || clickedPiece->GetColor() != playerColor) return;
         selectedPiece = clickedPiece;
-        status = Selected;
+        status = PieceSelected;
         sendEvent(clickedPiece, event);
         focusFrame->setPos(getX(selectedPiece->Y), getY(selectedPiece->X));
         if (focusFrame->scene() != this)
@@ -250,7 +250,7 @@ void Board::mousePressEvent(QGraphicsSceneMouseEvent* event)
 
 void Board::mouseReleaseEvent(QGraphicsSceneMouseEvent* event)
 {
-    if (status != Selected) return;
+    if (status != PieceSelected) return;
     auto pos = event->lastScenePos();
     if (!items(pos).isEmpty())
     {
@@ -272,7 +272,7 @@ void Board::mouseMoveEvent(QGraphicsSceneMouseEvent* event)
         return;
     }
 
-    if (status != Selected) return;
+    if (status != PieceSelected) return;
     auto pos = event->lastScenePos();
     if (selectedPiece->contains(selectedPiece->mapFromScene(pos)))
     {
@@ -395,7 +395,7 @@ float Board::getX ( int xPos )
 
 void Board::changePlayer()
 {
-    status = BannedOperation;
+    status = BoardBanned;
     playerColor ^= 1;
     player[playerColor]->Go();
 }
@@ -407,7 +407,7 @@ void Board::dragMoveEvent(QGraphicsSceneDragDropEvent* event)
 
 void Board::dropEvent(QGraphicsSceneDragDropEvent* event)
 {
-    if (status != Selected) return;
+    if (status != PieceSelected) return;
     auto pos = event->scenePos();
     if (!items(pos).isEmpty())
     {
@@ -423,5 +423,5 @@ void Board::dropEvent(QGraphicsSceneDragDropEvent* event)
 
 void Board::setMovable()
 {
-    status = Prepared;
+    status = BoardPrepared;
 }

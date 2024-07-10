@@ -31,6 +31,7 @@
 #define PLAYER_H
 
 #include <QObject>
+#include <QProcess>
 #include "board.h"
 #include "piece.h"
 
@@ -52,9 +53,35 @@ public:
      * Default constructor
      */
     Player(Board *board, PieceColor color);
-    void Go();
+    virtual void Go();
 };
 
-Q_DECLARE_INTERFACE ( Player, "Player" )
+enum EngineStatus
+{
+    EngineCreated, EnginePrepared, EngineThinking
+};
+
+class Engine : public Player
+{
+    Q_OBJECT
+
+    QProcess *engineProcess;
+    EngineStatus status = EngineCreated;
+
+private slots:
+    void handleOutput();
+
+public:
+    /**
+     * Default constructor
+     */
+    Engine(Board *board, PieceColor color, QString engineName);
+
+    /**
+     * Destructor
+     */
+    ~Engine();
+    void Go() override;
+};
 
 #endif // PLAYER_H

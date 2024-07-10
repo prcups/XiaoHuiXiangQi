@@ -38,3 +38,48 @@ void Player::Go()
 {
     board->setMovable();
 }
+
+Engine::Engine(Board *board, PieceColor color, QString engineName)
+:Player(board, color)
+{
+    engineProcess = new QProcess();
+    connect(engineProcess, &QProcess::readyRead, this, &Engine::handleOutput);
+    engineProcess->start(engineName, QStringList());
+    engineProcess->write("uci\n");
+}
+
+Engine::~Engine()
+{
+    delete engineProcess;
+}
+
+void Engine::Go()
+{
+    if (status != EnginePrepared) return;
+    status = EngineThinking;
+}
+
+void Engine::handleOutput()
+{
+    QString output;
+    switch (status)
+    {
+        case EngineCreated:
+            while (1)
+            {
+                output = engineProcess->readLine();
+                qDebug()<<"test "<<output;
+                if (output.isEmpty()) break;
+                if (output == "uciok\n")
+                {
+                    status = EnginePrepared;
+                    break;
+                }
+            }
+            break;
+        case EnginePrepared:
+            break;
+        case EngineThinking:
+            break;
+    }
+}
