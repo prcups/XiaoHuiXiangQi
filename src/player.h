@@ -44,6 +44,7 @@ class Player : public QObject
 {
     Q_OBJECT
 
+protected:
     PieceColor playerColor;
     Board *board;
 public:
@@ -70,6 +71,7 @@ class Engine : public Player
 
 private slots:
     void handleOutput();
+    void handleShortMoveString(QString moveString);
 
 public:
     /**

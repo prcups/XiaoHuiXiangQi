@@ -107,7 +107,7 @@ Board::Board()
     initBoard();
     putPieces(QString("rnbakabnr/9/1c5c1/p1p1p1p1p/9/9/P1P1P1P1P/1C5C1/9/RNBAKABNR"));
     playerColor = Red;
-    setMovable();
+    SetMovable();
     moveNumber = 0;
 }
 
@@ -119,7 +119,7 @@ Board::Board(QString fen)
     if (!putPieces(fenList[0])) throw("invalid");
     if (fenList[1] == "b") playerColor = Black;
     else playerColor = Red;
-    setMovable();
+    SetMovable();
     moveNumber = fenList[5].toInt();
 }
 
@@ -258,8 +258,8 @@ void Board::mouseReleaseEvent(QGraphicsSceneMouseEvent* event)
         if (clickedPiece == nullptr
             || (clickedPiece->Invalid == 0
             && clickedPiece->GetColor() == selectedPiece->GetColor())) return;
-        Move(selectedPiece, clickedPiece);
-        changePlayer();
+        Move(selectedPiece->X, selectedPiece->Y, clickedPiece->X, clickedPiece->Y);
+        ChangePlayer();
         sendEvent(selectedPiece, event);
         removeItem(focusFrame);
     }
@@ -285,21 +285,22 @@ void Board::mouseMoveEvent(QGraphicsSceneMouseEvent* event)
     }
 }
 
-void Board::Move(Piece* from, Piece* to)
+void Board::Move(int fromX, int fromY, int toX, int toY)
 {
-    auto toX = to->X, toY = to->Y;
-    removeItem(to);
+    removeItem(content[toX][toY]);
     delete content[toX][toY];
-    content[toX][toY] = from;
-    content[from->X][from->Y] = new Piece(from->X, from->Y);
-    addItem(content[from->X][from->Y]);
-    content[from->X][from->Y]->setPos(getX(from->Y), getY(from->X));
-    QPropertyAnimation *animation = new QPropertyAnimation(from, "pos");
+    content[toX][toY] = content[fromX][fromY];
+    content[toX][toY]->X = toX;
+    content[toX][toY]->Y = toY;
+    content[fromX][fromY] = new Piece(fromX, fromY);
+    addItem(content[fromX][fromY]);
+    content[fromX][fromY]->setPos(getX(fromY), getY(fromX));
+    content[fromX][fromY]->X = fromX;
+    content[fromX][fromY]->Y = fromY;
+    QPropertyAnimation *animation = new QPropertyAnimation(content[toX][toY], "pos");
     animation->setDuration(100);
     animation->setEndValue(QPointF(getX(toY), getY(toX)));
     animation->start();
-    from->X = toX;
-    from->Y = toY;
     ++moveNumber;
 }
 
@@ -393,7 +394,7 @@ float Board::getX ( int xPos )
     return background->getX ( xPos ) - 45;
 }
 
-void Board::changePlayer()
+void Board::ChangePlayer()
 {
     status = BoardBanned;
     playerColor ^= 1;
@@ -415,13 +416,13 @@ void Board::dropEvent(QGraphicsSceneDragDropEvent* event)
         if (clickedPiece == nullptr
             || (clickedPiece->Invalid == 0
             && clickedPiece->GetColor() == selectedPiece->GetColor())) return;
-        Move(selectedPiece, clickedPiece);
+        Move(selectedPiece->X, selectedPiece->Y, clickedPiece->X, clickedPiece->Y);
         removeItem(focusFrame);
-        changePlayer();
+        ChangePlayer();
     }
 }
 
-void Board::setMovable()
+void Board::SetMovable()
 {
     status = BoardPrepared;
 }

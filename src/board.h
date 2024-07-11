@@ -86,7 +86,6 @@ class Board : public QGraphicsScene
 
     void initBoard();
     bool putPieces(QStringView fenMain);
-    void changePlayer();
     float getX(int xPos);
     float getY(int yPos);
     void mousePressEvent ( QGraphicsSceneMouseEvent * event ) override;
@@ -102,9 +101,10 @@ public:
     Board();
     Board(QString fen);
     ~Board() noexcept;
-    void Move(Piece *from, Piece *to);
-    void setMovable();
+    void Move(int fromX, int fromY, int toX, int toY);
+    void SetMovable();
     QString ToFenString();
+    void ChangePlayer();
 };
 
 #endif // BOARD_H

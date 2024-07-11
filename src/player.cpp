@@ -36,7 +36,7 @@ Player::Player(Board *board, PieceColor color)
 
 void Player::Go()
 {
-    board->setMovable();
+    board->SetMovable();
 }
 
 Engine::Engine(Board *board, PieceColor color, QString engineName)
@@ -57,6 +57,10 @@ void Engine::Go()
 {
     if (status != EnginePrepared) return;
     status = EngineThinking;
+    QString output = "position fen ";
+    output.append(board->ToFenString());
+    output.append("\ngo depth 5\n");
+    engineProcess->write(output.toLocal8Bit());
 }
 
 void Engine::handleOutput()
@@ -68,7 +72,6 @@ void Engine::handleOutput()
             while (1)
             {
                 output = engineProcess->readLine();
-                qDebug()<<"test "<<output;
                 if (output.isEmpty()) break;
                 if (output == "uciok\n")
                 {
@@ -78,8 +81,30 @@ void Engine::handleOutput()
             }
             break;
         case EnginePrepared:
+            output = engineProcess->readAll();
             break;
         case EngineThinking:
+            while (1)
+            {
+                output = engineProcess->readLine();
+                if (output.isEmpty()) break;
+                if (output.contains("bestmove"))
+                {
+                    handleShortMoveString(output.remove(0, 9).chopped(1));
+                    status = EnginePrepared;
+                    board->ChangePlayer();
+                    break;
+                }
+            }
             break;
     }
+}
+
+void Engine::handleShortMoveString(QString moveString)
+{
+    int fromX = moveString[1].toLatin1() - '0';
+    int fromY = moveString[0].toLatin1() - 'a';
+    int toX = moveString[3].toLatin1() - '0';
+    int toY = moveString[2].toLatin1() - 'a';
+    board->Move(fromX, fromY, toX, toY);
 }
