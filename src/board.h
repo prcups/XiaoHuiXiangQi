@@ -36,6 +36,7 @@
 #include <QDebug>
 #include <QStringView>
 #include <QPropertyAnimation>
+#include <QTimer>
 #include "piece.h"
 #include "player.h"
 
@@ -92,6 +93,9 @@ class Board : public QGraphicsScene
     void dragMoveEvent(QGraphicsSceneDragDropEvent *event) override;
     void dropEvent(QGraphicsSceneDragDropEvent *event) override;
 
+private slots:
+    void changePlayer();
+
 public:
     /**
      * Default constructor
@@ -101,7 +105,6 @@ public:
     void Move(int fromX, int fromY, int toX, int toY);
     void SetMovable();
     QString ToFenString();
-    void ChangePlayer();
 };
 
 #endif // BOARD_H

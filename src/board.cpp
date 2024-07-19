@@ -248,7 +248,7 @@ void Board::mouseReleaseEvent(QGraphicsSceneMouseEvent* event)
             || (clickedPiece->Invalid == 0
             && clickedPiece->GetColor() == selectedPiece->GetColor())) return;
         Move(selectedPiece->X, selectedPiece->Y, clickedPiece->X, clickedPiece->Y);
-        ChangePlayer();
+        changePlayer();
         sendEvent(selectedPiece, event);
         removeItem(focusFrame);
     }
@@ -291,6 +291,8 @@ void Board::Move(int fromX, int fromY, int toX, int toY)
     animation->setEndValue(QPointF(getX(toY), getY(toX)));
     animation->start();
     ++moveNumber;
+    status = BoardBanned;
+    QTimer::singleShot(100, this, &Board::changePlayer);
 }
 
 QString Board::ToFenString()
@@ -383,9 +385,8 @@ float Board::getX ( int xPos )
     return background->getX ( xPos ) - 45;
 }
 
-void Board::ChangePlayer()
+void Board::changePlayer()
 {
-    status = BoardBanned;
     playerColor ^= 1;
     player[playerColor]->Go();
 }
@@ -412,6 +413,5 @@ void Board::dropEvent(QGraphicsSceneDragDropEvent* event)
             && clickedPiece->GetColor() == selectedPiece->GetColor())) return;
         Move(selectedPiece->X, selectedPiece->Y, clickedPiece->X, clickedPiece->Y);
         removeItem(focusFrame);
-        ChangePlayer();
     }
 }

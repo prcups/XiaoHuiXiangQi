@@ -107,7 +107,6 @@ void Engine::handleOutput()
                 {
                     handleShortMoveString(output.remove(0, 9).chopped(1));
                     status = EnginePrepared;
-                    board->ChangePlayer();
                     break;
                 }
             }
