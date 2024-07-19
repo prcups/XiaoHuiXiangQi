@@ -27,49 +27,20 @@
 // the provisions above, a recipient may use your version of this file
 // under either the MPL or the [___] License."
 
-#include "mainwindow.h"
+#include "gamestartdialog.h"
+#include "ui_gamestartdialog.h"
 
-void BoardView::resizeEvent(QResizeEvent* event)
+GameStartDialog::GameStartDialog()
+    : m_ui(new Ui::GameStartDialog)
 {
-    fitInView(sceneRect(), Qt::KeepAspectRatio);
+    m_ui->setupUi(this);
 }
 
-BoardView::BoardView(Board* board)
-:QGraphicsView(board)
+int GameStartDialog::GetPlayerSelection(PieceColor color)
 {
-    setAcceptDrops(true);
+    if (color == Red) return m_ui->RedPlayer->currentIndex();
+    else return m_ui->BlackPlayer->currentIndex();
 }
 
-MainWindow::MainWindow()
-{
-    auto menubar = new QMenuBar;
-    auto gameMenu = menubar->addMenu(tr("对局"));
-    gameMenu->addAction(tr("新建"), this, &MainWindow::onCreateTriggered);
-    this->setMenuBar(menubar);
-    this->setMinimumSize(560, 640);
-}
-
-MainWindow::~MainWindow()
-{
-    delete boardView;
-    delete board;
-}
-
-void MainWindow::onCreateTriggered()
-{
-    PlayerType type[2];
-    GameStartDialog gameStartDialog;
-    if (!gameStartDialog.exec()) return;
-    for (int i = 0; i < 2; ++i)
-    {
-        if (gameStartDialog.GetPlayerSelection(PieceColor(i)) == 0)
-            type[i] = Human;
-        else type[i] = Computer;
-    }
-    delete boardView;
-    delete board;
-    board = new Board(type);
-    boardView = new BoardView(board);
-    this->setCentralWidget(boardView);
-}
+GameStartDialog::~GameStartDialog() {}
 

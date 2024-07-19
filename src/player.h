@@ -32,8 +32,17 @@
 
 #include <QObject>
 #include <QProcess>
-#include "board.h"
 #include "piece.h"
+
+enum PlayerType
+{
+    Human, Computer
+};
+
+enum EngineStatus
+{
+    EngineCreated, EnginePrepared, EngineThinking
+};
 
 class Board;
 
@@ -47,6 +56,7 @@ class Player : public QObject
 protected:
     PieceColor playerColor;
     Board *board;
+    PlayerType type;
 public:
     virtual ~Player();
 
@@ -55,11 +65,6 @@ public:
      */
     Player(Board *board, PieceColor color);
     virtual void Go();
-};
-
-enum EngineStatus
-{
-    EngineCreated, EnginePrepared, EngineThinking
 };
 
 class Engine : public Player

@@ -102,34 +102,31 @@ void BoardBackground::drawSoldierPos(QPainter* painter, int xPos, int yPos)
     }
 }
 
-Board::Board()
-{
-    initBoard();
-    putPieces(QString("rnbakabnr/9/1c5c1/p1p1p1p1p/9/9/P1P1P1P1P/1C5C1/9/RNBAKABNR"));
-    playerColor = Red;
-    SetMovable();
-    moveNumber = 0;
-}
-
-Board::Board(QString fen)
-{
-    initBoard();
-    auto fenList = fen.split(' ');
-    if (fenList.size() != 6) throw("invalid");
-    if (!putPieces(fenList[0])) throw("invalid");
-    if (fenList[1] == "b") playerColor = Black;
-    else playerColor = Red;
-    SetMovable();
-    moveNumber = fenList[5].toInt();
-}
-
-void Board::initBoard()
+Board::Board(PlayerType playerType[])
 {
     background = new BoardBackground;
     addItem(background);
     focusFrame = new QGraphicsRectItem(0, 0, 90, 90);
-    player[Red] = new Player(this, Red);
-    player[Black] = new Engine(this, Black, "./pikafish");
+    putPieces(QString("rnbakabnr/9/1c5c1/p1p1p1p1p/9/9/P1P1P1P1P/1C5C1/9/RNBAKABNR"));
+    for (int i = 0; i < 2; ++i)
+    {
+        if (playerType[i] == Human)
+            player[i] = new Player(this, PieceColor(i));
+        else player[i] = new Engine(this, PieceColor(i), "./pikafish");
+    }
+    playerColor = Red;
+    moveNumber = 0;
+    player[playerColor]->Go();
+}
+
+Board::~Board() noexcept
+{
+    for (int i = 0; i < 10; ++i)
+        for (int j = 0; j < 9; ++j)
+            delete content[i][j];
+    delete background;
+    delete player[0];
+    delete player[1];
 }
 
 bool Board::putPieces(QStringView fenMain)
@@ -221,14 +218,6 @@ bool Board::putPieces(QStringView fenMain)
     }
     if (line != -1) return false;
     return true;
-}
-
-Board::~Board() noexcept
-{
-    for (int i = 0; i < 10; ++i)
-        for (int j = 0; j < 9; ++j)
-            delete content[i][j];
-    delete background;
 }
 
 void Board::mousePressEvent(QGraphicsSceneMouseEvent* event)
@@ -401,6 +390,11 @@ void Board::ChangePlayer()
     player[playerColor]->Go();
 }
 
+void Board::SetMovable()
+{
+    status = BoardPrepared;
+}
+
 void Board::dragMoveEvent(QGraphicsSceneDragDropEvent* event)
 {
     if (event->mimeData()->text() != "xhxq") return;
@@ -420,9 +414,4 @@ void Board::dropEvent(QGraphicsSceneDragDropEvent* event)
         removeItem(focusFrame);
         ChangePlayer();
     }
-}
-
-void Board::SetMovable()
-{
-    status = BoardPrepared;
 }

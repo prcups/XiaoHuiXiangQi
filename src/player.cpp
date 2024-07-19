@@ -27,12 +27,13 @@
 // the provisions above, a recipient may use your version of this file
 // under either the MPL or the [___] License."
 
+#include "board.h"
 #include "player.h"
 
 Player::~Player() = default;
 
 Player::Player(Board *board, PieceColor color)
-:playerColor(color), board(board) {}
+:playerColor(color), board(board), type(Human) {}
 
 void Player::Go()
 {
@@ -42,6 +43,7 @@ void Player::Go()
 Engine::Engine(Board *board, PieceColor color, QString engineName)
 :Player(board, color)
 {
+    type = Computer;
     engineProcess = new QProcess();
     connect(engineProcess, &QProcess::readyRead, this, &Engine::handleOutput);
     engineProcess->start(engineName, QStringList());
@@ -50,6 +52,8 @@ Engine::Engine(Board *board, PieceColor color, QString engineName)
 
 Engine::~Engine()
 {
+    engineProcess->kill();
+    engineProcess->waitForFinished();
     delete engineProcess;
 }
 
@@ -73,6 +77,7 @@ void Engine::handleOutput()
             {
                 output = engineProcess->readLine();
                 if (output.isEmpty()) break;
+                qDebug()<<"Created: "<< output;
                 if (output == "uciok\n")
                 {
                     status = EnginePrepared;
@@ -82,12 +87,14 @@ void Engine::handleOutput()
             break;
         case EnginePrepared:
             output = engineProcess->readAll();
+            qDebug()<<"Prepared: "<< output;
             break;
         case EngineThinking:
             while (1)
             {
                 output = engineProcess->readLine();
                 if (output.isEmpty()) break;
+                qDebug()<<"Thinking: "<< output;
                 if (output.contains("bestmove"))
                 {
                     handleShortMoveString(output.remove(0, 9).chopped(1));

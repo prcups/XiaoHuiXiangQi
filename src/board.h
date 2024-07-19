@@ -44,6 +44,7 @@
  */
 
 class Board;
+class Player;
 
 class BoardBackground : public QGraphicsItem
 {
@@ -65,8 +66,6 @@ public:
     BoardBackground();
 };
 
-class Player;
-
 enum BoardStatus
 {
     BoardBanned, BoardPrepared, PieceSelected
@@ -84,7 +83,6 @@ class Board : public QGraphicsScene
     int moveNumber;
     QGraphicsRectItem *focusFrame;
 
-    void initBoard();
     bool putPieces(QStringView fenMain);
     float getX(int xPos);
     float getY(int yPos);
@@ -98,8 +96,7 @@ public:
     /**
      * Default constructor
      */
-    Board();
-    Board(QString fen);
+    Board(PlayerType playerType[]);
     ~Board() noexcept;
     void Move(int fromX, int fromY, int toX, int toY);
     void SetMovable();

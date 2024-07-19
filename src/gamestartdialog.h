@@ -2,20 +2,20 @@
 // Version 1.1 (the "License"); you may not use this file except in
 // compliance with the License. You may obtain a copy of the License at
 // http://www.mozilla.org/MPL/
-// 
+//
 // Software distributed under the License is distributed on an "AS IS"
 // basis, WITHOUT WARRANTY OF ANY KIND, either express or implied. See the
 // License for the specific language governing rights and limitations
 // under the License.
-// 
+//
 // The Original Code is ______________________________________.
-// 
+//
 // The Initial Developer of the Original Code is ________________________.
 // Portions created by ______________________ are Copyright (C) ______
 // _______________________. All Rights Reserved.
-// 
+//
 // Contributor(s): ______________________________________.
-// 
+//
 // Alternatively, the contents of this file may be used under the terms
 // of the _____ license (the  "[___] License"), in which case the
 // provisions of [______] License are applicable instead of those
@@ -27,49 +27,32 @@
 // the provisions above, a recipient may use your version of this file
 // under either the MPL or the [___] License."
 
-#include "mainwindow.h"
+#ifndef GAMESTARTDIALOG_H
+#define GAMESTARTDIALOG_H
 
-void BoardView::resizeEvent(QResizeEvent* event)
+#include <QDialog>
+#include <QScopedPointer>
+#include "piece.h"
+
+namespace Ui
 {
-    fitInView(sceneRect(), Qt::KeepAspectRatio);
+class GameStartDialog;
 }
 
-BoardView::BoardView(Board* board)
-:QGraphicsView(board)
+/**
+ * @todo write docs
+ */
+class GameStartDialog : public QDialog
 {
-    setAcceptDrops(true);
-}
+    Q_OBJECT
 
-MainWindow::MainWindow()
-{
-    auto menubar = new QMenuBar;
-    auto gameMenu = menubar->addMenu(tr("对局"));
-    gameMenu->addAction(tr("新建"), this, &MainWindow::onCreateTriggered);
-    this->setMenuBar(menubar);
-    this->setMinimumSize(560, 640);
-}
+public:
+    GameStartDialog();
+    ~GameStartDialog();
+    int GetPlayerSelection(PieceColor color);
 
-MainWindow::~MainWindow()
-{
-    delete boardView;
-    delete board;
-}
+private:
+    QScopedPointer<Ui::GameStartDialog> m_ui;
+};
 
-void MainWindow::onCreateTriggered()
-{
-    PlayerType type[2];
-    GameStartDialog gameStartDialog;
-    if (!gameStartDialog.exec()) return;
-    for (int i = 0; i < 2; ++i)
-    {
-        if (gameStartDialog.GetPlayerSelection(PieceColor(i)) == 0)
-            type[i] = Human;
-        else type[i] = Computer;
-    }
-    delete boardView;
-    delete board;
-    board = new Board(type);
-    boardView = new BoardView(board);
-    this->setCentralWidget(boardView);
-}
-
+#endif // GAMESTARTDIALOG_H

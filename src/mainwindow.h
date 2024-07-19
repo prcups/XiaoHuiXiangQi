@@ -35,6 +35,7 @@
 #include <QGraphicsView>
 #include <QPointer>
 #include "board.h"
+#include "gamestartdialog.h"
 
 class BoardView : public QGraphicsView
 {
@@ -47,8 +48,11 @@ class MainWindow : public QMainWindow
 {
     Q_OBJECT
 
-    Board *board;
-    BoardView *boardView;
+    Board *board = nullptr;
+    BoardView *boardView = nullptr;
+private slots:
+    void onCreateTriggered();
+
 public:
     /**
      * Default constructor
