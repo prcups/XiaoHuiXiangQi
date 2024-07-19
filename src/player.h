@@ -73,6 +73,7 @@ class Engine : public Player
 
     QProcess *engineProcess;
     EngineStatus status = EngineCreated;
+    bool deferGo = 0;
 
 private slots:
     void handleOutput();

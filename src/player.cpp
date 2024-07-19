@@ -59,7 +59,10 @@ Engine::~Engine()
 
 void Engine::Go()
 {
-    if (status != EnginePrepared) return;
+    if (status != EnginePrepared){
+        deferGo = 1;
+        return;
+    }
     status = EngineThinking;
     QString output = "position fen ";
     output.append(board->ToFenString());
@@ -81,6 +84,11 @@ void Engine::handleOutput()
                 if (output == "uciok\n")
                 {
                     status = EnginePrepared;
+                    if (deferGo)
+                    {
+                        Go();
+                        deferGo = 0;
+                    }
                     break;
                 }
             }
