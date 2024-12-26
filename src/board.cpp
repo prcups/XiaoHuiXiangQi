@@ -107,7 +107,7 @@ Board::Board(PlayerType playerType[])
     background = new BoardBackground;
     addItem(background);
     focusFrame = new QGraphicsRectItem(0, 0, 90, 90);
-    putPieces(QString("rnbakabnr/9/1c5c1/p1p1p1p1p/9/9/P1P1P1P1P/1C5C1/9/RNBAKABNR"));
+    initPieces(QString("rnbakabnr/9/1c5c1/p1p1p1p1p/9/9/P1P1P1P1P/1C5C1/9/RNBAKABNR"));
     for (int i = 0; i < 2; ++i)
     {
         if (playerType[i] == Human)
@@ -129,7 +129,25 @@ Board::~Board() noexcept
     delete player[1];
 }
 
-bool Board::putPieces(QStringView fenMain)
+void Board::execMoveOnBoard(int fromX, int fromY, int toX, int toY)
+{
+    removeItem(content[toX][toY]);
+    delete content[toX][toY];
+    content[toX][toY] = content[fromX][fromY];
+    content[toX][toY]->X = toX;
+    content[toX][toY]->Y = toY;
+    content[fromX][fromY] = new Piece(fromX, fromY);
+    addItem(content[fromX][fromY]);
+    content[fromX][fromY]->setPos(getX(fromY), getY(fromX));
+    content[fromX][fromY]->X = fromX;
+    content[fromX][fromY]->Y = fromY;
+    QPropertyAnimation *animation = new QPropertyAnimation(content[toX][toY], "pos");
+    animation->setDuration(100);
+    animation->setEndValue(QPointF(getX(toY), getY(toX)));
+    animation->start();
+}
+
+bool Board::initPieces(QStringView fenMain)
 {
     for (int i = 0; i < 10; ++i)
         for (int j = 0; j < 9; ++j)
@@ -218,27 +236,6 @@ bool Board::putPieces(QStringView fenMain)
     }
     if (line != -1) return false;
     return true;
-}
-
-void Board::Move(int fromX, int fromY, int toX, int toY)
-{
-    removeItem(content[toX][toY]);
-    delete content[toX][toY];
-    content[toX][toY] = content[fromX][fromY];
-    content[toX][toY]->X = toX;
-    content[toX][toY]->Y = toY;
-    content[fromX][fromY] = new Piece(fromX, fromY);
-    addItem(content[fromX][fromY]);
-    content[fromX][fromY]->setPos(getX(fromY), getY(fromX));
-    content[fromX][fromY]->X = fromX;
-    content[fromX][fromY]->Y = fromY;
-    QPropertyAnimation *animation = new QPropertyAnimation(content[toX][toY], "pos");
-    animation->setDuration(100);
-    animation->setEndValue(QPointF(getX(toY), getY(toX)));
-    animation->start();
-    ++moveNumber;
-    status = BoardBanned;
-    QTimer::singleShot(100, this, &Board::changePlayer);
 }
 
 QString Board::ToFenString()
@@ -359,21 +356,6 @@ void Board::mousePressEvent(QGraphicsSceneMouseEvent* event)
     }
 }
 
-void Board::mouseReleaseEvent(QGraphicsSceneMouseEvent* event)
-{
-    if (status != PieceSelected) return;
-    auto pos = event->lastScenePos();
-    if (!items(pos).isEmpty())
-    {
-        auto clickedPiece =  dynamic_cast<Piece*>(items(pos).first());
-        if (clickedPiece == nullptr
-            || (clickedPiece->Invalid == 0
-            && clickedPiece->GetColor() == selectedPiece->GetColor())) return;
-        Move(selectedPiece->X, selectedPiece->Y, clickedPiece->X, clickedPiece->Y);
-        removeItem(focusFrame);
-    }
-}
-
 void Board::mouseMoveEvent(QGraphicsSceneMouseEvent* event)
 {
     if (QLineF(event->screenPos(), event->buttonDownScreenPos(Qt::LeftButton))
@@ -401,15 +383,34 @@ void Board::dragMoveEvent(QGraphicsSceneDragDropEvent* event)
 
 void Board::dropEvent(QGraphicsSceneDragDropEvent* event)
 {
-    if (status != PieceSelected) return;
     auto pos = event->scenePos();
+    handlePutEvent(pos);
+}
+
+void Board::mouseReleaseEvent(QGraphicsSceneMouseEvent* event)
+{
+    auto pos = event->lastScenePos();
+    handlePutEvent(pos);
+}
+
+void Board::handlePutEvent(QPointF & pos)
+{
+    if (status != PieceSelected) return;
     if (!items(pos).isEmpty())
     {
         auto clickedPiece =  dynamic_cast<Piece*>(items(pos).first());
         if (clickedPiece == nullptr
             || (clickedPiece->Invalid == 0
-            && clickedPiece->GetColor() == selectedPiece->GetColor())) return;
+                && clickedPiece->GetColor() == selectedPiece->GetColor())) return;
         Move(selectedPiece->X, selectedPiece->Y, clickedPiece->X, clickedPiece->Y);
         removeItem(focusFrame);
     }
+}
+
+void Board::Move(int fromX, int fromY, int toX, int toY)
+{
+    status = BoardBanned;
+    ++moveNumber;
+    execMoveOnBoard(fromX, fromY, toX, toY);
+    QTimer::singleShot(100, this, &Board::changePlayer);
 }

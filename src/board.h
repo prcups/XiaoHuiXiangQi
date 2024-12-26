@@ -84,9 +84,13 @@ class Board : public QGraphicsScene
     int moveNumber;
     QGraphicsRectItem *focusFrame;
 
-    bool putPieces(QStringView fenMain);
+    bool initPieces(QStringView fenMain);
     float getX(int xPos);
     float getY(int yPos);
+
+    void handlePutEvent(QPointF & pos);
+    void execMoveOnBoard(int fromX, int fromY, int toX, int toY);
+
     void mousePressEvent ( QGraphicsSceneMouseEvent * event ) override;
     void mouseReleaseEvent ( QGraphicsSceneMouseEvent * event ) override;
     void mouseMoveEvent ( QGraphicsSceneMouseEvent * event ) override;
@@ -102,8 +106,8 @@ public:
      */
     Board(PlayerType playerType[]);
     ~Board() noexcept;
-    void Move(int fromX, int fromY, int toX, int toY);
     void SetMovable();
+    void Move(int fromX, int fromY, int toX, int toY);
     QString ToFenString();
 };
 
