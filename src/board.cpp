@@ -220,60 +220,6 @@ bool Board::putPieces(QStringView fenMain)
     return true;
 }
 
-void Board::mousePressEvent(QGraphicsSceneMouseEvent* event)
-{
-    if (status == BoardBanned) return;
-    auto pos = event->lastScenePos();
-    if (!items(pos).isEmpty())
-    {
-        auto clickedPiece =  dynamic_cast<Piece*>(items(pos).first());
-        if (clickedPiece == nullptr || clickedPiece->Invalid || clickedPiece->GetColor() != playerColor) return;
-        selectedPiece = clickedPiece;
-        status = PieceSelected;
-        sendEvent(clickedPiece, event);
-        focusFrame->setPos(getX(selectedPiece->Y), getY(selectedPiece->X));
-        if (focusFrame->scene() != this)
-            addItem(focusFrame);
-    }
-}
-
-void Board::mouseReleaseEvent(QGraphicsSceneMouseEvent* event)
-{
-    if (status != PieceSelected) return;
-    auto pos = event->lastScenePos();
-    if (!items(pos).isEmpty())
-    {
-        auto clickedPiece =  dynamic_cast<Piece*>(items(pos).first());
-        if (clickedPiece == nullptr
-            || (clickedPiece->Invalid == 0
-            && clickedPiece->GetColor() == selectedPiece->GetColor())) return;
-        Move(selectedPiece->X, selectedPiece->Y, clickedPiece->X, clickedPiece->Y);
-        changePlayer();
-        sendEvent(selectedPiece, event);
-        removeItem(focusFrame);
-    }
-}
-
-void Board::mouseMoveEvent(QGraphicsSceneMouseEvent* event)
-{
-    if (QLineF(event->screenPos(), event->buttonDownScreenPos(Qt::LeftButton))
-        .length() < QApplication::startDragDistance()) {
-        return;
-    }
-
-    if (status != PieceSelected) return;
-    auto pos = event->lastScenePos();
-    if (selectedPiece->contains(selectedPiece->mapFromScene(pos)))
-    {
-        QDrag *drag = new QDrag(event->widget());
-        QMimeData *mime = new QMimeData;
-        mime->setText("xhxq");
-        drag->setMimeData(mime);
-        drag->setPixmap(selectedPiece->GetPixmap());
-        drag->exec();
-    }
-}
-
 void Board::Move(int fromX, int fromY, int toX, int toY)
 {
     removeItem(content[toX][toY]);
@@ -394,6 +340,58 @@ void Board::changePlayer()
 void Board::SetMovable()
 {
     status = BoardPrepared;
+}
+
+
+void Board::mousePressEvent(QGraphicsSceneMouseEvent* event)
+{
+    if (status == BoardBanned) return;
+    auto pos = event->lastScenePos();
+    if (!items(pos).isEmpty())
+    {
+        auto clickedPiece =  dynamic_cast<Piece*>(items(pos).first());
+        if (clickedPiece == nullptr || clickedPiece->Invalid || clickedPiece->GetColor() != playerColor) return;
+        selectedPiece = clickedPiece;
+        status = PieceSelected;
+        focusFrame->setPos(getX(selectedPiece->Y), getY(selectedPiece->X));
+        if (focusFrame->scene() != this)
+            addItem(focusFrame);
+    }
+}
+
+void Board::mouseReleaseEvent(QGraphicsSceneMouseEvent* event)
+{
+    if (status != PieceSelected) return;
+    auto pos = event->lastScenePos();
+    if (!items(pos).isEmpty())
+    {
+        auto clickedPiece =  dynamic_cast<Piece*>(items(pos).first());
+        if (clickedPiece == nullptr
+            || (clickedPiece->Invalid == 0
+            && clickedPiece->GetColor() == selectedPiece->GetColor())) return;
+        Move(selectedPiece->X, selectedPiece->Y, clickedPiece->X, clickedPiece->Y);
+        removeItem(focusFrame);
+    }
+}
+
+void Board::mouseMoveEvent(QGraphicsSceneMouseEvent* event)
+{
+    if (QLineF(event->screenPos(), event->buttonDownScreenPos(Qt::LeftButton))
+        .length() < QApplication::startDragDistance()) {
+        return;
+    }
+
+    if (status != PieceSelected) return;
+    auto pos = event->lastScenePos();
+    if (selectedPiece->contains(selectedPiece->mapFromScene(pos)))
+    {
+        QDrag *drag = new QDrag(event->widget());
+        QMimeData *mime = new QMimeData;
+        mime->setText("xhxq");
+        drag->setMimeData(mime);
+        drag->setPixmap(selectedPiece->GetPixmap());
+        drag->exec();
+    }
 }
 
 void Board::dragMoveEvent(QGraphicsSceneDragDropEvent* event)
