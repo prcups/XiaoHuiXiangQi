@@ -37,6 +37,7 @@
 #include <QStringView>
 #include <QPropertyAnimation>
 #include <QTimer>
+#include <QVector>
 #include "piece.h"
 #include "player.h"
 
@@ -78,24 +79,43 @@ class Board : public QGraphicsScene
     Piece *content[10][9];
     BoardBackground* background;
     Player *player[2];
-    int playerColor;
+    int curPlayerIndex;
     BoardStatus status = BoardBanned;
     Piece *selectedPiece;
     int moveNumber;
     QGraphicsRectItem *focusFrame;
 
+    struct JudgeOffset
+    {
+        int x, y;
+        bool operator == (const JudgeOffset & t) const
+        {
+            return x == t.x && y == t.y;
+        }
+    };
+
+    static const QVector <JudgeOffset> jiangOffset;
+    static const QVector <JudgeOffset> maOffset;
+
     bool initPieces(QStringView fenMain);
     float getX(int xPos);
     float getY(int yPos);
-
     void handlePutEvent(QPointF & pos);
     void execMoveOnBoard(int fromX, int fromY, int toX, int toY);
-
     void mousePressEvent ( QGraphicsSceneMouseEvent * event ) override;
     void mouseReleaseEvent ( QGraphicsSceneMouseEvent * event ) override;
     void mouseMoveEvent ( QGraphicsSceneMouseEvent * event ) override;
     void dragMoveEvent(QGraphicsSceneDragDropEvent *event) override;
     void dropEvent(QGraphicsSceneDragDropEvent *event) override;
+    bool hasPiece(int x, int y);
+    bool judgeMove(int fromX, int fromY, int toX, int toY);
+    bool judgeChe(int fromX, int fromY, int toX, int toY);
+    bool judgeMa(int fromX, int fromY, int toX, int toY);
+    bool judgePao(int fromX, int fromY, int toX, int toY);
+    bool judgeZu(int fromX, int fromY, int toX, int toY);
+    bool judgeXiang(int fromX, int fromY, int toX, int toY);
+    bool judgeShi(int fromX, int fromY, int toX, int toY);
+    bool judgeJiang(int fromX, int fromY, int toX, int toY);
 
 private slots:
     void changePlayer();
@@ -106,8 +126,9 @@ public:
      */
     Board(PlayerType playerType[]);
     ~Board() noexcept;
+    PieceColor GetCurPlayerColor();
     void SetMovable();
-    void Move(int fromX, int fromY, int toX, int toY);
+    bool Move(int fromX, int fromY, int toX, int toY);
     QString ToFenString();
 };
 

@@ -40,6 +40,11 @@ void Player::Go()
     board->SetMovable();
 }
 
+PieceColor Player::GetColor()
+{
+    return playerColor;
+}
+
 Engine::Engine(Board *board, PieceColor color, QString engineName)
 :Player(board, color)
 {

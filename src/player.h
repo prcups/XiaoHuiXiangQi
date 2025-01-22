@@ -64,6 +64,7 @@ public:
      * Default constructor
      */
     Player(Board *board, PieceColor color);
+    PieceColor GetColor();
     virtual void Go();
 };
 

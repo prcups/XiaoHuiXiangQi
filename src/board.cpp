@@ -29,6 +29,9 @@
 
 #include "board.h"
 
+const QVector <Board::JudgeOffset> Board::jiangOffset = {{0, 1}, {0, -1}, {1, 0}, {-1, 0}};
+const QVector <Board::JudgeOffset> Board::maOffset = {{1, 2}, {-1, 2}, {1, -2}, {-1, -2}, {2, 1}, {2, -1}, {-2, 1}, {-2, -1}};
+
 QRectF BoardBackground::boundingRect() const
 {
     return QRectF(0, 0, 960, 1120);
@@ -114,9 +117,9 @@ Board::Board(PlayerType playerType[])
             player[i] = new Player(this, PieceColor(i));
         else player[i] = new Engine(this, PieceColor(i), "./pikafish");
     }
-    playerColor = Red;
+    curPlayerIndex = Red;
     moveNumber = 0;
-    player[playerColor]->Go();
+    player[curPlayerIndex]->Go();
 }
 
 Board::~Board() noexcept
@@ -311,7 +314,7 @@ QString Board::ToFenString()
                 if (i != 0) fen.append('/');
             }
         }
-    if (playerColor == Black) fen.append(" b");
+    if (curPlayerIndex == Black) fen.append(" b");
     else fen.append(" w");
     fen.append(" - - 0 ");
     fen.append(QString::number(moveNumber));
@@ -330,15 +333,14 @@ float Board::getX ( int xPos )
 
 void Board::changePlayer()
 {
-    playerColor ^= 1;
-    player[playerColor]->Go();
+    curPlayerIndex ^= 1;
+    player[curPlayerIndex]->Go();
 }
 
 void Board::SetMovable()
 {
     status = BoardPrepared;
 }
-
 
 void Board::mousePressEvent(QGraphicsSceneMouseEvent* event)
 {
@@ -347,7 +349,7 @@ void Board::mousePressEvent(QGraphicsSceneMouseEvent* event)
     if (!items(pos).isEmpty())
     {
         auto clickedPiece =  dynamic_cast<Piece*>(items(pos).first());
-        if (clickedPiece == nullptr || clickedPiece->Invalid || clickedPiece->GetColor() != playerColor) return;
+        if (clickedPiece == nullptr || clickedPiece->Invalid || clickedPiece->GetColor() != curPlayerIndex) return;
         selectedPiece = clickedPiece;
         status = PieceSelected;
         focusFrame->setPos(getX(selectedPiece->Y), getY(selectedPiece->X));
@@ -402,15 +404,112 @@ void Board::handlePutEvent(QPointF & pos)
         if (clickedPiece == nullptr
             || (clickedPiece->Invalid == 0
                 && clickedPiece->GetColor() == selectedPiece->GetColor())) return;
-        Move(selectedPiece->X, selectedPiece->Y, clickedPiece->X, clickedPiece->Y);
-        removeItem(focusFrame);
+        if (Move(selectedPiece->X, selectedPiece->Y, clickedPiece->X, clickedPiece->Y))
+            removeItem(focusFrame);
     }
 }
 
-void Board::Move(int fromX, int fromY, int toX, int toY)
+bool Board::Move(int fromX, int fromY, int toX, int toY)
 {
+    if (!judgeMove(fromX, fromY, toX, toY)) return false;
     status = BoardBanned;
     ++moveNumber;
     execMoveOnBoard(fromX, fromY, toX, toY);
     QTimer::singleShot(100, this, &Board::changePlayer);
+    return true;
+}
+
+bool Board::hasPiece(int x, int y)
+{
+    if (content[x][y]->Invalid) return false;
+    else return true;
+}
+
+PieceColor Board::GetCurPlayerColor()
+{
+    return player[curPlayerIndex]->GetColor();
+}
+
+bool Board::judgeMove(int fromX, int fromY, int toX, int toY)
+{
+    switch(content[fromX][fromY]->GetType())
+    {
+        case Che:
+            if (!judgeChe(fromX, fromY, toX, toY)) return false;
+            break;
+        case Ma:
+            if (!judgeMa(fromX, fromY, toX, toY)) return false;
+            break;
+        case Pao:
+            if (!judgePao(fromX, fromY, toX, toY)) return false;
+            break;
+        case Zu:
+            if (!judgeZu(fromX, fromY, toX, toY)) return false;
+            break;
+        case Xiang:
+            if (!judgeXiang(fromX, fromY, toX, toY)) return false;
+            break;
+        case Shi:
+            if (!judgeShi(fromX, fromY, toX, toY)) return false;
+            break;
+        case Jiang:
+            if (!judgeJiang(fromX, fromY, toX, toY)) return false;
+    }
+    return true;
+}
+
+bool Board::judgeChe(int fromX, int fromY, int toX, int toY)
+{
+    if (fromX == toX)
+    {
+        int tmin = std::min(fromY, toY),
+            tmax = std::max(fromY, toY);
+        for (int i = tmin + 1; i < tmax; ++i)
+            if (!content[fromX][i]->Invalid) return false;
+        return true;
+    } else if (fromY == toY)
+    {
+        int tmin = std::min(fromX, toX),
+            tmax = std::max(fromX, toX);
+        for (int i = tmin + 1; i < tmax; ++i)
+            if (!content[i][fromY]->Invalid) return false;
+        return true;
+    }
+    else return false;
+}
+
+bool Board::judgeJiang(int fromX, int fromY, int toX, int toY)
+{
+    if (GetCurPlayerColor() == Red && toX > 2) return false;
+    if (GetCurPlayerColor() == Black && toX < 7) return false;
+    if (toY < 3 || toY > 5) return false;
+    if (jiangOffset.contains({toX - fromX, toY - fromY})) return true;
+    return false;
+}
+
+bool Board::judgeMa(int fromX, int fromY, int toX, int toY)
+{
+    auto idx = maOffset.indexOf({toX - fromX, toY - fromY});
+    if (idx != -1 && content[fromX + jiangOffset[idx / 2].x][fromY + jiangOffset[idx / 2].y]->Invalid) return true;
+    return false;
+}
+
+bool Board::judgeZu(int fromX, int fromY, int toX, int toY)
+{
+    return false;
+}
+
+bool Board::judgePao(int fromX, int fromY, int toX, int toY)
+{
+    return false;
+}
+
+bool Board::judgeShi(int fromX, int fromY, int toX, int toY)
+{
+    return false;
+}
+
+bool Board::judgeXiang(int fromX, int fromY, int toX, int toY)
+{
+    return false;
 }
