@@ -31,6 +31,9 @@
 
 const QVector <Board::JudgeOffset> Board::jiangOffset = {{0, 1}, {0, -1}, {1, 0}, {-1, 0}};
 const QVector <Board::JudgeOffset> Board::maOffset = {{1, 2}, {-1, 2}, {1, -2}, {-1, -2}, {2, 1}, {2, -1}, {-2, 1}, {-2, -1}};
+const QVector <Board::JudgeOffset> Board::shiOffset = {{1, 1}, {1, -1}, {-1, 1}, {-1, -1}};
+const QVector <Board::JudgeOffset> Board::xiangOffset = {{2, 2}, {2, -2}, {-2, 2}, {-2, -2}};
+const QVector <Board::JudgeOffset> Board::zuOffset = {{1, 0}, {0, -1}, {0, 1}};
 
 QRectF BoardBackground::boundingRect() const
 {
@@ -496,20 +499,61 @@ bool Board::judgeMa(int fromX, int fromY, int toX, int toY)
 
 bool Board::judgeZu(int fromX, int fromY, int toX, int toY)
 {
+    bool isGuohezu = false;
+    JudgeOffset offset;
+    if (GetCurPlayerColor() == Red)
+    {
+        if (fromX > 4) isGuohezu = true;
+        offset = {toX - fromX, toY - fromY};
+    } else {
+        if (fromX < 5) isGuohezu = true;
+        offset = {fromX - toX, fromY - toY};
+    }
+    if (!isGuohezu)
+    {
+        if (offset == JudgeOffset{1, 0}) return true;
+    }
+    else if (zuOffset.contains(offset)) return true;
+
     return false;
 }
 
 bool Board::judgePao(int fromX, int fromY, int toX, int toY)
 {
+    int count = 0;
+    if (fromX == toX)
+    {
+        int tmin = std::min(fromY, toY),
+            tmax = std::max(fromY, toY);
+        for (int i = tmin + 1; i < tmax; ++i)
+            if (!content[fromX][i]->Invalid) ++count;
+    } else if (fromY == toY)
+    {
+        int tmin = std::min(fromX, toX),
+            tmax = std::max(fromX, toX);
+        for (int i = tmin + 1; i < tmax; ++i)
+            if (!content[i][fromY]->Invalid) ++count;
+    }
+    else return false;
+    if ((count == 0 && content[toX][toY]->Invalid)
+        || (count == 1 && (!content[toX][toY]->Invalid))
+    ) return true;
     return false;
 }
 
 bool Board::judgeShi(int fromX, int fromY, int toX, int toY)
 {
+    if (GetCurPlayerColor() == Red && toX > 2) return false;
+    if (GetCurPlayerColor() == Black && toX < 7) return false;
+    if (toY < 3 || toY > 5) return false;
+    if (shiOffset.contains({toX - fromX, toY - fromY})) return true;
     return false;
 }
 
 bool Board::judgeXiang(int fromX, int fromY, int toX, int toY)
 {
+    if (GetCurPlayerColor() == Red && toX > 4) return false;
+    if (GetCurPlayerColor() == Black && toX < 5) return false;
+    if (xiangOffset.contains({toX - fromX, toY - fromY})) return true;
     return false;
 }

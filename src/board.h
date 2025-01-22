@@ -96,6 +96,9 @@ class Board : public QGraphicsScene
 
     static const QVector <JudgeOffset> jiangOffset;
     static const QVector <JudgeOffset> maOffset;
+    static const QVector <JudgeOffset> shiOffset;
+    static const QVector <JudgeOffset> xiangOffset;
+    static const QVector <JudgeOffset> zuOffset;
 
     bool initPieces(QStringView fenMain);
     float getX(int xPos);
