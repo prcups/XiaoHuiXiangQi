@@ -38,6 +38,8 @@
 #include <QPropertyAnimation>
 #include <QTimer>
 #include <QVector>
+#include <QPair>
+#include <QList>
 #include "piece.h"
 #include "player.h"
 
@@ -79,26 +81,17 @@ class Board : public QGraphicsScene
     Piece *content[10][9];
     BoardBackground* background;
     Player *player[2];
-    int curPlayerIndex;
+    int curPlayerColor;
     BoardStatus status = BoardBanned;
     Piece *selectedPiece;
     int moveNumber;
     QGraphicsRectItem *focusFrame;
 
-    struct JudgeOffset
-    {
-        int x, y;
-        bool operator == (const JudgeOffset & t) const
-        {
-            return x == t.x && y == t.y;
-        }
-    };
-
-    static const QVector <JudgeOffset> jiangOffset;
-    static const QVector <JudgeOffset> maOffset;
-    static const QVector <JudgeOffset> shiOffset;
-    static const QVector <JudgeOffset> xiangOffset;
-    static const QVector <JudgeOffset> zuOffset;
+    static const QVector <QPair<int, int>> jiangOffset;
+    static const QVector <QPair<int, int>> maOffset;
+    static const QVector <QPair<int, int>> shiOffset;
+    static const QVector <QPair<int, int>> xiangOffset;
+    static const QVector <QPair<int, int>> zuOffset;
 
     bool initPieces(QStringView fenMain);
     float getX(int xPos);
@@ -119,6 +112,7 @@ class Board : public QGraphicsScene
     bool judgeXiang(int fromX, int fromY, int toX, int toY);
     bool judgeShi(int fromX, int fromY, int toX, int toY);
     bool judgeJiang(int fromX, int fromY, int toX, int toY);
+    bool judgeJiangjun(PieceColor color);
 
 private slots:
     void changePlayer();

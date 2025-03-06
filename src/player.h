@@ -66,6 +66,7 @@ public:
     Player(Board *board, PieceColor color);
     PieceColor GetColor();
     virtual void Go();
+    Piece *JiangPtr;
 };
 
 class Engine : public Player

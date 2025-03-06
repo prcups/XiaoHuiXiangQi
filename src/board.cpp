@@ -29,11 +29,11 @@
 
 #include "board.h"
 
-const QVector <Board::JudgeOffset> Board::jiangOffset = {{0, 1}, {0, -1}, {1, 0}, {-1, 0}};
-const QVector <Board::JudgeOffset> Board::maOffset = {{1, 2}, {-1, 2}, {1, -2}, {-1, -2}, {2, 1}, {2, -1}, {-2, 1}, {-2, -1}};
-const QVector <Board::JudgeOffset> Board::shiOffset = {{1, 1}, {1, -1}, {-1, 1}, {-1, -1}};
-const QVector <Board::JudgeOffset> Board::xiangOffset = {{2, 2}, {2, -2}, {-2, 2}, {-2, -2}};
-const QVector <Board::JudgeOffset> Board::zuOffset = {{1, 0}, {0, -1}, {0, 1}};
+const QVector <QPair<int, int>> Board::jiangOffset = {{0, 1}, {0, -1}, {1, 0}, {-1, 0}};
+const QVector <QPair<int, int>> Board::maOffset = {{1, 2}, {-1, 2}, {1, -2}, {-1, -2}, {2, 1}, {2, -1}, {-2, 1}, {-2, -1}};
+const QVector <QPair<int, int>> Board::shiOffset = {{1, 1}, {1, -1}, {-1, 1}, {-1, -1}};
+const QVector <QPair<int, int>> Board::xiangOffset = {{2, 2}, {2, -2}, {-2, 2}, {-2, -2}};
+const QVector <QPair<int, int>> Board::zuOffset = {{1, 0}, {0, -1}, {0, 1}};
 
 QRectF BoardBackground::boundingRect() const
 {
@@ -113,16 +113,17 @@ Board::Board(PlayerType playerType[])
     background = new BoardBackground;
     addItem(background);
     focusFrame = new QGraphicsRectItem(0, 0, 90, 90);
-    initPieces(QString("rnbakabnr/9/1c5c1/p1p1p1p1p/9/9/P1P1P1P1P/1C5C1/9/RNBAKABNR"));
     for (int i = 0; i < 2; ++i)
     {
         if (playerType[i] == Human)
             player[i] = new Player(this, PieceColor(i));
         else player[i] = new Engine(this, PieceColor(i), "./pikafish");
     }
-    curPlayerIndex = Red;
+    initPieces(QString("rnbakabnr/9/1c5c1/p1p1p1p1p/9/9/P1P1P1P1P/1C5C1/9/RNBAKABNR"));
+    curPlayerColor = Red;
     moveNumber = 0;
-    player[curPlayerIndex]->Go();
+
+    player[curPlayerColor]->Go();
 }
 
 Board::~Board() noexcept
@@ -142,6 +143,8 @@ void Board::execMoveOnBoard(int fromX, int fromY, int toX, int toY)
     content[toX][toY] = content[fromX][fromY];
     content[toX][toY]->X = toX;
     content[toX][toY]->Y = toY;
+    if (content[toX][toY]->GetType() == Jiang)
+        player[content[toX][toY]->GetColor()]->JiangPtr = content[toX][toY];
     content[fromX][fromY] = new Piece(fromX, fromY);
     addItem(content[fromX][fromY]);
     content[fromX][fromY]->setPos(getX(fromY), getY(fromX));
@@ -163,12 +166,13 @@ bool Board::initPieces(QStringView fenMain)
     for (QChar t : fenMain)
     {
         if (line < 0) return false;
+        auto color = t.isLower() ? Black : Red;
         switch (t.unicode())
         {
             case 'r':
             case 'R':
                 if (column > 8) return false;
-                content[line][column] = new Piece(Che, t.isLower() ? Black : Red, line, column);
+                content[line][column] = new Piece(Che, color, line, column);
                 content[line][column]->setPos(getX(column), getY(line));
                 addItem(content[line][column]);
                 ++column;
@@ -176,7 +180,7 @@ bool Board::initPieces(QStringView fenMain)
             case 'n':
             case 'N':
                 if (column > 8) return false;
-                content[line][column] = new Piece(Ma, t.isLower() ? Black : Red, line, column);
+                content[line][column] = new Piece(Ma, color, line, column);
                 content[line][column]->setPos(getX(column), getY(line));
                 addItem(content[line][column]);
                 ++column;
@@ -184,7 +188,7 @@ bool Board::initPieces(QStringView fenMain)
             case 'b':
             case 'B':
                 if (column > 8) return false;
-                content[line][column] = new Piece(Xiang, t.isLower() ? Black : Red, line, column);
+                content[line][column] = new Piece(Xiang, color, line, column);
                 content[line][column]->setPos(getX(column), getY(line));
                 addItem(content[line][column]);
                 ++column;
@@ -192,7 +196,7 @@ bool Board::initPieces(QStringView fenMain)
             case 'a':
             case 'A':
                 if (column > 8) return false;
-                content[line][column] = new Piece(Shi, t.isLower() ? Black : Red, line, column);
+                content[line][column] = new Piece(Shi, color, line, column);
                 content[line][column]->setPos(getX(column), getY(line));
                 addItem(content[line][column]);
                 ++column;
@@ -200,15 +204,16 @@ bool Board::initPieces(QStringView fenMain)
             case 'k':
             case 'K':
                 if (column > 8) return false;
-                content[line][column] = new Piece(Jiang, t.isLower() ? Black : Red, line, column);
+                content[line][column] = new Piece(Jiang, color, line, column);
                 content[line][column]->setPos(getX(column), getY(line));
                 addItem(content[line][column]);
+                player[color]->JiangPtr = content[line][column];
                 ++column;
                 break;
             case 'c':
             case 'C':
                 if (column > 8) return false;
-                content[line][column] = new Piece(Pao, t.isLower() ? Black : Red, line, column);
+                content[line][column] = new Piece(Pao, color, line, column);
                 content[line][column]->setPos(getX(column), getY(line));
                 addItem(content[line][column]);
                 ++column;
@@ -216,7 +221,7 @@ bool Board::initPieces(QStringView fenMain)
             case 'p':
             case 'P':
                 if (column > 8) return false;
-                content[line][column] = new Piece(Zu, t.isLower() ? Black : Red, line, column);
+                content[line][column] = new Piece(Zu, color, line, column);
                 content[line][column]->setPos(getX(column), getY(line));
                 addItem(content[line][column]);
                 ++column;
@@ -317,7 +322,7 @@ QString Board::ToFenString()
                 if (i != 0) fen.append('/');
             }
         }
-    if (curPlayerIndex == Black) fen.append(" b");
+    if (curPlayerColor == Black) fen.append(" b");
     else fen.append(" w");
     fen.append(" - - 0 ");
     fen.append(QString::number(moveNumber));
@@ -336,8 +341,8 @@ float Board::getX ( int xPos )
 
 void Board::changePlayer()
 {
-    curPlayerIndex ^= 1;
-    player[curPlayerIndex]->Go();
+    curPlayerColor ^= 1;
+    player[curPlayerColor]->Go();
 }
 
 void Board::SetMovable()
@@ -352,7 +357,7 @@ void Board::mousePressEvent(QGraphicsSceneMouseEvent* event)
     if (!items(pos).isEmpty())
     {
         auto clickedPiece =  dynamic_cast<Piece*>(items(pos).first());
-        if (clickedPiece == nullptr || clickedPiece->Invalid || clickedPiece->GetColor() != curPlayerIndex) return;
+        if (clickedPiece == nullptr || clickedPiece->Invalid || clickedPiece->GetColor() != curPlayerColor) return;
         selectedPiece = clickedPiece;
         status = PieceSelected;
         focusFrame->setPos(getX(selectedPiece->Y), getY(selectedPiece->X));
@@ -418,7 +423,7 @@ bool Board::Move(int fromX, int fromY, int toX, int toY)
     status = BoardBanned;
     ++moveNumber;
     execMoveOnBoard(fromX, fromY, toX, toY);
-    QTimer::singleShot(100, this, &Board::changePlayer);
+    QTimer::singleShot(200, this, &Board::changePlayer);
     return true;
 }
 
@@ -430,7 +435,7 @@ bool Board::hasPiece(int x, int y)
 
 PieceColor Board::GetCurPlayerColor()
 {
-    return player[curPlayerIndex]->GetColor();
+    return PieceColor(curPlayerColor);
 }
 
 bool Board::judgeMove(int fromX, int fromY, int toX, int toY)
@@ -458,6 +463,20 @@ bool Board::judgeMove(int fromX, int fromY, int toX, int toY)
         case Jiang:
             if (!judgeJiang(fromX, fromY, toX, toY)) return false;
     }
+
+    auto tempPiece = content[toX][toY];
+    content[toX][toY] = content[fromX][fromY];
+    content[toX][toY]->X = toX;
+    content[toX][toY]->Y = toY;
+    content[fromX][fromY] = new Piece(fromX, fromY);
+    auto jiangJun = judgeJiangjun(GetCurPlayerColor());
+    delete content[fromX][fromY];
+    content[fromX][fromY] = content[toX][toY];
+    content[fromX][fromY]->X = fromX;
+    content[fromX][fromY]->Y = fromY;
+    content[toX][toY] = tempPiece;
+    if (jiangJun) return false;
+
     return true;
 }
 
@@ -492,15 +511,19 @@ bool Board::judgeJiang(int fromX, int fromY, int toX, int toY)
 
 bool Board::judgeMa(int fromX, int fromY, int toX, int toY)
 {
-    auto idx = maOffset.indexOf({toX - fromX, toY - fromY});
-    if (idx != -1 && content[fromX + jiangOffset[idx / 2].x][fromY + jiangOffset[idx / 2].y]->Invalid) return true;
+    auto xOffset = toX - fromX;
+    auto yOffset = toY - fromY;
+    auto idx = maOffset.indexOf({xOffset, yOffset});
+    if (idx != -1 &&
+        content[fromX + xOffset / 2][fromY + yOffset / 2]->Invalid)
+            return true;
     return false;
 }
 
 bool Board::judgeZu(int fromX, int fromY, int toX, int toY)
 {
     bool isGuohezu = false;
-    JudgeOffset offset;
+    QPair<int, int> offset;
     if (GetCurPlayerColor() == Red)
     {
         if (fromX > 4) isGuohezu = true;
@@ -511,7 +534,7 @@ bool Board::judgeZu(int fromX, int fromY, int toX, int toY)
     }
     if (!isGuohezu)
     {
-        if (offset == JudgeOffset{1, 0}) return true;
+        if (offset == QPair<int, int>{1, 0}) return true;
     }
     else if (zuOffset.contains(offset)) return true;
 
@@ -554,6 +577,120 @@ bool Board::judgeXiang(int fromX, int fromY, int toX, int toY)
 {
     if (GetCurPlayerColor() == Red && toX > 4) return false;
     if (GetCurPlayerColor() == Black && toX < 5) return false;
-    if (xiangOffset.contains({toX - fromX, toY - fromY})) return true;
+    auto xOffset = toX - fromX;
+    auto yOffset = toY - fromY;
+    auto idx = xiangOffset.indexOf({xOffset, yOffset});
+    if (idx != -1 &&
+        content[fromX + xOffset / 2][fromY + yOffset / 2]->Invalid)
+            return true;
+    return false;
+}
+
+bool Board::judgeJiangjun(PieceColor color)
+{
+    auto jiangPtr = player[color]->JiangPtr;
+    auto x = jiangPtr->X;
+    auto y = jiangPtr->Y;
+    bool paoMode = 0;
+    for (int t = x - 1; t >= 0; --t)
+    {
+        if (!content[t][y]->Invalid)
+        {
+            if (content[t][y]->GetColor() != color)
+            {
+                if (paoMode) {
+                    if (content[t][y]->GetType() == Pao) return true;
+                }
+                else
+                {
+                    if (content[t][y]->GetType() == Jiang
+                        || content[t][y]->GetType() == Che) return true;
+                }
+            }
+            if (paoMode == 0) paoMode = 1;
+            else break;
+        }
+    }
+
+    paoMode = 0;
+    for (int t = x + 1; t <= 9; ++t)
+    {
+        if (!content[t][y]->Invalid)
+        {
+            if (content[t][y]->GetColor() != color)
+            {
+                if (paoMode) {
+                    if (content[t][y]->GetType() == Pao) return true;
+                }
+                else
+                {
+                    if (content[t][y]->GetType() == Jiang
+                        || content[t][y]->GetType() == Che) return true;
+                }
+            }
+            if (paoMode == 0) paoMode = 1;
+            else break;
+        }
+    }
+
+    paoMode = 0;
+    for (int t = y - 1; t >= 0; --t)
+    {
+        if (!content[x][t]->Invalid)
+        {
+            if (content[x][t]->GetColor() != color)
+            {
+                if (paoMode) {
+                    if (content[x][t]->GetType() == Pao) return true;
+                }
+                else
+                {
+                    if (content[x][t]->GetType() == Jiang
+                        || content[x][t]->GetType() == Che) return true;
+                }
+            }
+            if (paoMode == 0) paoMode = 1;
+            else break;
+        }
+    }
+
+    paoMode = 0;
+    for (int t = y + 1; t <= 8; ++t)
+    {
+        if (!content[x][t]->Invalid)
+        {
+            if (content[x][t]->GetColor() != color)
+            {
+                if (paoMode) {
+                    if (content[x][t]->GetType() == Pao) return true;
+                }
+                else
+                {
+                    if (content[x][t]->GetType() == Jiang
+                        || content[x][t]->GetType() == Che) return true;
+                }
+            }
+            if (paoMode == 0) paoMode = 1;
+            else break;
+        }
+    }
+
+    Piece* dst;
+    for (auto & i : zuOffset)
+    {
+        if (color == Red) dst = content[x + i.first][y + i.second];
+        else dst = content[x - i.first][y - i.second];
+        if (dst->GetType() == Zu && dst->GetColor() != color) return true;
+    }
+
+    for (auto & i : maOffset)
+    {
+        if (x + i.first < 0) continue;
+        if (x + i.first > 9) continue;
+        dst = content[x + i.first][y + i.second];
+        if (dst->GetType() == Ma && dst->GetColor() != color
+                && content[dst->X - i.first / 2][dst->Y - i.second / 2]->Invalid
+        ) return true;
+    }
     return false;
 }
