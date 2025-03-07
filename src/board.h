@@ -40,8 +40,10 @@
 #include <QVector>
 #include <QPair>
 #include <QList>
+#include <QMessageBox>
 #include "piece.h"
 #include "player.h"
+#include "log.h"
 
 /**
  * @todo write docs

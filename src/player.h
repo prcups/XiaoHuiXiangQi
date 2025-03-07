@@ -33,6 +33,7 @@
 #include <QObject>
 #include <QProcess>
 #include "piece.h"
+#include "log.h"
 
 enum PlayerType
 {

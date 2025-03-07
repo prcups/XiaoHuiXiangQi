@@ -85,7 +85,7 @@ void Engine::handleOutput()
             {
                 output = engineProcess->readLine();
                 if (output.isEmpty()) break;
-                qDebug()<<"Created: "<< output;
+                log() << (this->playerColor == Red ? QString("Red: ") : QString("Black: ")) << output;
                 if (output == "uciok\n")
                 {
                     status = EnginePrepared;
@@ -100,16 +100,17 @@ void Engine::handleOutput()
             break;
         case EnginePrepared:
             output = engineProcess->readAll();
-            qDebug()<<"Prepared: "<< output;
+            log() << (this->playerColor == Red ? QString("Red: ") : QString("Black: ")) << output;
             break;
         case EngineThinking:
             while (1)
             {
                 output = engineProcess->readLine();
                 if (output.isEmpty()) break;
-                qDebug()<<"Thinking: "<< output;
+                log() << (this->playerColor == Red ? QString("Red: ") : QString("Black: ")) << output;
                 if (output.contains("bestmove"))
                 {
+                    log() << "\n";
                     handleShortMoveString(output.remove(0, 9).chopped(1));
                     status = EnginePrepared;
                     break;

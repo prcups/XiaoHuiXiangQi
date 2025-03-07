@@ -18,6 +18,7 @@ set(xiaohuixiangqi_SRC
   src/piece.cpp
   src/player.cpp
   src/gamestartdialog.cpp
+  src/log.cpp
 )
 
 file(COPY

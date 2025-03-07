@@ -31,19 +31,36 @@
 
 void BoardView::resizeEvent(QResizeEvent* event)
 {
+    Q_UNUSED(event)
     fitInView(sceneRect(), Qt::KeepAspectRatio);
 }
 
-BoardView::BoardView(Board* board)
-:QGraphicsView(board)
+BoardView::BoardView()
 {
     setAcceptDrops(true);
+}
+
+LogWindow::LogWindow(): edit(new QTextEdit)
+{
+    setWindowTitle(tr("日志"));
+    setAllowedAreas(Qt::LeftDockWidgetArea);
+    setFeatures(QDockWidget::DockWidgetClosable);
+    edit->setReadOnly(true);
+    setWidget(edit.get());
+}
+
+void LogWindow::logReceived(const QString& str)
+{
+    edit->insertPlainText(str);
 }
 
 MainWindow::MainWindow()
 {
     setWindowTitle(tr("小卉象棋"));
     setWindowIcon(QIcon("icon.jpg"));
+
+    addDockWidget(Qt::LeftDockWidgetArea, &logWindow);
+    connect(&log(), &Log::NewLogOutput, &logWindow, &LogWindow::logReceived);
 
     auto menubar = new QMenuBar;
 
@@ -67,11 +84,11 @@ MainWindow::MainWindow()
 
     this->setMenuBar(menubar);
     this->setMinimumSize(560, 640);
+    this->setCentralWidget(&boardView);
 }
 
 MainWindow::~MainWindow()
 {
-    delete boardView;
     delete board;
 }
 
@@ -86,11 +103,10 @@ void MainWindow::onCreateTriggered()
             type[i] = Human;
         else type[i] = Computer;
     }
-    delete boardView;
+    auto newBoard = new Board(type);
+    boardView.setScene(newBoard);
     delete board;
-    board = new Board(type);
-    boardView = new BoardView(board);
-    this->setCentralWidget(boardView);
+    board = newBoard;
 }
 
 void MainWindow::onAboutTriggered()

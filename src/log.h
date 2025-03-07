@@ -27,62 +27,26 @@
 // the provisions above, a recipient may use your version of this file
 // under either the MPL or the [___] License."
 
-#ifndef MAINWINDOW_H
-#define MAINWINDOW_H
+#ifndef LOG_H
+#define LOG_H
 
-#include <QMainWindow>
-#include <QMenuBar>
-#include <QGraphicsView>
-#include <QPointer>
-#include <QMessageBox>
-#include <QDockWidget>
-#include <QTextEdit>
+#include <QObject>
+#include <QDebug>
 
-#include "board.h"
-#include "gamestartdialog.h"
-#include "log.h"
-
-class BoardView : public QGraphicsView
-{
-    void resizeEvent ( QResizeEvent * event ) override;
-public:
-    BoardView();
-};
-
-class LogWindow: public QDockWidget
+/**
+ * @todo write docs
+ */
+class Log : public QObject
 {
     Q_OBJECT
 
-    QScopedPointer <QTextEdit> edit;
-public:
-    LogWindow();
-public slots:
-    void logReceived(const QString & str);
-};
-
-class MainWindow : public QMainWindow
-{
-    Q_OBJECT
-
-    LogWindow logWindow;
-    QPointer <Board> board;
-    BoardView boardView;
-private slots:
-    void onCreateTriggered();
-    void onAboutTriggered();
-    void onAboutQtTriggered();
+signals:
+    void NewLogOutput(const QString & str);
 
 public:
-    /**
-     * Default constructor
-     */
-    MainWindow();
-
-    /**
-     * Destructor
-     */
-    ~MainWindow();
-
+    Log & operator << (const QString & str);
 };
 
-#endif // MAINWINDOW_H
+Log & log();
+
+#endif // LOG_H

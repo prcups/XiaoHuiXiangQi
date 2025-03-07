@@ -133,15 +133,15 @@ void Board::judgeAndGo()
     {
         if (judgeJiangjun(PieceColor(curPlayerColor ^ 1)))
         {
-            qDebug() << tr("错误：一方可直接吃掉对方将军");
+            log() << tr("错误：一方可直接吃掉对方将军\n");
             return;
         }
     }
     if (judgeJiangjun(PieceColor(curPlayerColor)))
-        qDebug() << playerStr[curPlayerColor ^ 1] << tr("将军");
+        qDebug() << playerStr[curPlayerColor ^ 1] << tr("将军\n");
     if (judgePossibleToMove(PieceColor(curPlayerColor)))
         player[curPlayerColor]->Go();
-    else qDebug() << playerStr[curPlayerColor ^ 1] << tr("胜利");
+    else qDebug() << playerStr[curPlayerColor ^ 1] << tr("胜利\n");
 }
 
 
