@@ -34,6 +34,7 @@
 #include <QMenuBar>
 #include <QGraphicsView>
 #include <QPointer>
+#include <QMessageBox>
 #include "board.h"
 #include "gamestartdialog.h"
 
@@ -52,6 +53,8 @@ class MainWindow : public QMainWindow
     BoardView *boardView = nullptr;
 private slots:
     void onCreateTriggered();
+    void onAboutTriggered();
+    void onAboutQtTriggered();
 
 public:
     /**

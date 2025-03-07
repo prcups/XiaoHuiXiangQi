@@ -42,9 +42,29 @@ BoardView::BoardView(Board* board)
 
 MainWindow::MainWindow()
 {
+    setWindowTitle(tr("小卉象棋"));
+    setWindowIcon(QIcon("icon.jpg"));
+
     auto menubar = new QMenuBar;
+
     auto gameMenu = menubar->addMenu(tr("对局"));
     gameMenu->addAction(tr("新建"), this, &MainWindow::onCreateTriggered);
+    gameMenu->addSeparator();
+    gameMenu->addAction(tr("退出"), this, &MainWindow::close);
+
+    auto operationMenu = menubar->addMenu(tr("操作"));
+    operationMenu->addAction(tr("上一步"));
+    operationMenu->addAction(tr("下一步"));
+    operationMenu->addAction(tr("求和"));
+    operationMenu->addAction(tr("认输"));
+    operationMenu->addSeparator();
+    operationMenu->addAction(tr("显示日志"));
+    operationMenu->addAction(tr("设置"));
+
+    auto aboutMenu = menubar->addMenu(tr("关于"));
+    aboutMenu->addAction(tr("关于"), this, &MainWindow::onAboutTriggered);
+    aboutMenu->addAction(tr("关于Qt"), this, &MainWindow::onAboutQtTriggered);
+
     this->setMenuBar(menubar);
     this->setMinimumSize(560, 640);
 }
@@ -73,3 +93,12 @@ void MainWindow::onCreateTriggered()
     this->setCentralWidget(boardView);
 }
 
+void MainWindow::onAboutTriggered()
+{
+    QMessageBox::about(this, tr("关于"), tr("小卉象棋 0.1\n一个简单的象棋界面"));
+}
+
+void MainWindow::onAboutQtTriggered()
+{
+    QMessageBox::aboutQt(this, tr("关于Qt"));
+}

@@ -20,6 +20,11 @@ set(xiaohuixiangqi_SRC
   src/gamestartdialog.cpp
 )
 
+file(COPY
+  assets/icon.jpg
+  DESTINATION ${CMAKE_BINARY_DIR}
+)
+
 # Tell CMake to create the helloworld executable
 add_executable(xiaohuixiangqi ${xiaohuixiangqi_SRC})
 

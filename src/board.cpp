@@ -514,10 +514,8 @@ bool Board::judgePossibleToMove(PieceColor color)
                         {
                             if (content[t][j]->Invalid)
                             {
-                                if (!judgeMoveToJiangjun(i, j, t, j)) {
-                                    qDebug() << i << j << t << j;
+                                if (!judgeMoveToJiangjun(i, j, t, j))
                                     return true;
-                                }
                             }
                             else
                             {
@@ -529,18 +527,14 @@ bool Board::judgePossibleToMove(PieceColor color)
                                         {
                                             if (!content[k][j]->Invalid && content[k][j]->GetColor() != color)
                                             {
-                                                if (!judgeMoveToJiangjun(i, j, k, j)) {
-                                                    qDebug() << i << j << k << j;
+                                                if (!judgeMoveToJiangjun(i, j, k, j))
                                                     return true;
-                                                }
                                                 break;
                                             }
                                         }
                                     }
-                                    else if (!judgeMoveToJiangjun(i, j, t, j)) {
-                                        qDebug() << i << j << t << j;
+                                    else if (!judgeMoveToJiangjun(i, j, t, j))
                                         return true;
-                                    }
                                     break;
                                 }
                                 break;
@@ -550,10 +544,8 @@ bool Board::judgePossibleToMove(PieceColor color)
                         {
                             if (content[t][j]->Invalid)
                             {
-                                if (!judgeMoveToJiangjun(i, j, t, j)) {
-                                    qDebug() << i << j << t << j;
+                                if (!judgeMoveToJiangjun(i, j, t, j))
                                     return true;
-                                }
                             }
                             else
                             {
@@ -565,18 +557,14 @@ bool Board::judgePossibleToMove(PieceColor color)
                                         {
                                             if (!content[k][j]->Invalid && content[k][j]->GetColor() != color)
                                             {
-                                                if (!judgeMoveToJiangjun(i, j, k, j)) {
-                                                    qDebug() << i << j << k << j;
+                                                if (!judgeMoveToJiangjun(i, j, k, j))
                                                     return true;
-                                                }
                                                 break;
                                             }
                                         }
                                     }
-                                    else if (!judgeMoveToJiangjun(i, j, t, j)) {
-                                        qDebug() << i << j << t << j;
+                                    else if (!judgeMoveToJiangjun(i, j, t, j))
                                         return true;
-                                    }
                                 }
                                 break;
                             }
@@ -585,10 +573,8 @@ bool Board::judgePossibleToMove(PieceColor color)
                         {
                             if (content[i][t]->Invalid)
                             {
-                                if (!judgeMoveToJiangjun(i, j, i, t)) {
-                                    qDebug() << i << j << i << t;
+                                if (!judgeMoveToJiangjun(i, j, i, t))
                                     return true;
-                                }
                             }
                             else
                             {
@@ -600,18 +586,14 @@ bool Board::judgePossibleToMove(PieceColor color)
                                         {
                                             if (!content[i][k]->Invalid && content[i][k]->GetColor() != color)
                                             {
-                                                if (!judgeMoveToJiangjun(i, j, i, k)) {
-                                                    qDebug() << i << j << i << k;
+                                                if (!judgeMoveToJiangjun(i, j, i, k))
                                                     return true;
-                                                }
                                                 break;
                                             }
                                         }
                                     }
-                                    else if (!judgeMoveToJiangjun(i, j, i, t)) {
-                                        qDebug() << i << j << i << t;
+                                    else if (!judgeMoveToJiangjun(i, j, i, t))
                                         return true;
-                                    }
                                 }
                                 break;
                             }
@@ -620,10 +602,8 @@ bool Board::judgePossibleToMove(PieceColor color)
                         {
                             if (content[i][t]->Invalid)
                             {
-                                if (!judgeMoveToJiangjun(i, j, i, t)) {
-                                    qDebug() << i << j << i << t;
+                                if (!judgeMoveToJiangjun(i, j, i, t))
                                     return true;
-                                }
                             }
                             else
                             {
@@ -635,18 +615,14 @@ bool Board::judgePossibleToMove(PieceColor color)
                                         {
                                             if (!content[i][k]->Invalid && content[i][k]->GetColor() != color)
                                             {
-                                                if (!judgeMoveToJiangjun(i, j, i, k)) {
-                                                    qDebug() << i << j << i << k;
+                                                if (!judgeMoveToJiangjun(i, j, i, k))
                                                     return true;
-                                                }
                                                 break;
                                             }
                                         }
                                     }
-                                    else if (!judgeMoveToJiangjun(i, j, i, t)) {
-                                        qDebug() << i << j << i << t;
+                                    else if (!judgeMoveToJiangjun(i, j, i, t))
                                         return true;
-                                    }
                                 }
                                 break;
                             }
@@ -663,10 +639,8 @@ bool Board::judgePossibleToMove(PieceColor color)
                             if (dstY > 8) continue;
                             if (!content[dstX][dstY]->Invalid
                                 && content[dstX][dstY]->GetColor() == color) continue;
-                            if (content[i + offset.first / 2][j + offset.second / 2]->Invalid && !judgeMoveToJiangjun(i, j, dstX, dstY)) {
-                                qDebug() << i << j << dstX << dstY;
+                            if (content[i + offset.first / 2][j + offset.second / 2]->Invalid && !judgeMoveToJiangjun(i, j, dstX, dstY))
                                 return true;
-                            }
                         }
                         break;
                     case Zu:
@@ -675,10 +649,8 @@ bool Board::judgePossibleToMove(PieceColor color)
                             if (i < 5)
                             {
                                 if ((content[i + 1][j]->Invalid || content[i + 1][j]->GetColor() == Black)
-                                    && !judgeMoveToJiangjun(i, j, i + 1, j)){
-                                        qDebug() << i << j << i + 1 << j;
-                                        return true;
-                                    }
+                                    && !judgeMoveToJiangjun(i, j, i + 1, j))
+                                    return true;
                             }
                             else
                             {
@@ -691,10 +663,8 @@ bool Board::judgePossibleToMove(PieceColor color)
                                     if (dstY > 8) continue;
                                     if (!content[dstX][dstY]->Invalid
                                         && content[dstX][dstY]->GetColor() == color) continue;
-                                    if (!judgeMoveToJiangjun(i, j, dstX, dstY)) {
-                                        qDebug() << i << j << dstX << dstY;
+                                    if (!judgeMoveToJiangjun(i, j, dstX, dstY))
                                         return true;
-                                    }
                                 }
                             }
                         }
@@ -703,10 +673,8 @@ bool Board::judgePossibleToMove(PieceColor color)
                             if (i > 4)
                             {
                                 if ((content[i - 1][j]->Invalid || content[i - 1][j]->GetColor() == Red)
-                                    && !judgeMoveToJiangjun(i, j, i - 1, j)){
-                                        qDebug() << i << j << i - 1 << j;
-                                        return true;
-                                    }
+                                    && !judgeMoveToJiangjun(i, j, i - 1, j))
+                                    return true;
                             }
                             else
                             {
@@ -719,10 +687,8 @@ bool Board::judgePossibleToMove(PieceColor color)
                                     if (dstY > 8) continue;
                                     if (!content[dstX][dstY]->Invalid
                                         && content[dstX][dstY]->GetColor() == color) continue;
-                                    if (!judgeMoveToJiangjun(i, j, dstX, dstY)) {
-                                        qDebug() << i << j << dstX << dstY;
+                                    if (!judgeMoveToJiangjun(i, j, dstX, dstY))
                                         return true;
-                                    }
                                 }
                             }
                         }
@@ -738,10 +704,8 @@ bool Board::judgePossibleToMove(PieceColor color)
                             if (dstY > 8) continue;
                             if (!content[dstX][dstY]->Invalid
                                 && content[dstX][dstY]->GetColor() == color) continue;
-                            if (content[i + offset.first / 2][j + offset.second / 2]->Invalid && !judgeMoveToJiangjun(i, j, dstX, dstY)) {
-                                qDebug() << i << j << dstX << dstY;
+                            if (content[i + offset.first / 2][j + offset.second / 2]->Invalid && !judgeMoveToJiangjun(i, j, dstX, dstY))
                                 return true;
-                            }
                         }
                         break;
                     case Shi:
@@ -755,10 +719,8 @@ bool Board::judgePossibleToMove(PieceColor color)
                             if (dstY > 5) continue;
                             if (!content[dstX][dstY]->Invalid
                                 && content[dstX][dstY]->GetColor() == color) continue;
-                            if (!judgeMoveToJiangjun(i, j, dstX, dstY)) {
-                                qDebug() << i << j << dstX << dstY;
+                            if (!judgeMoveToJiangjun(i, j, dstX, dstY))
                                 return true;
-                            }
                         }
                         break;
                     case Jiang:
@@ -772,10 +734,8 @@ bool Board::judgePossibleToMove(PieceColor color)
                             if (dstY > 5) continue;
                             if (!content[dstX][dstY]->Invalid
                                 && content[dstX][dstY]->GetColor() == color) continue;
-                            if (!judgeMoveToJiangjun(i, j, dstX, dstY)) {
-                                qDebug() << i << j << dstX << dstY;
+                            if (!judgeMoveToJiangjun(i, j, dstX, dstY))
                                 return true;
-                            }
                         }
                 }
             }
