@@ -123,8 +123,27 @@ Board::Board(PlayerType playerType[])
     curPlayerColor = Red;
     moveNumber = 0;
 
-    player[curPlayerColor]->Go();
+    judgeAndGo();
 }
+
+void Board::judgeAndGo()
+{
+    static QString playerStr[2] = {tr("红方"), tr("黑方")};
+    if (moveNumber == 0)
+    {
+        if (judgeJiangjun(PieceColor(curPlayerColor ^ 1)))
+        {
+            qDebug() << tr("错误：一方可直接吃掉对方将军");
+            return;
+        }
+    }
+    if (judgeJiangjun(PieceColor(curPlayerColor)))
+        qDebug() << playerStr[curPlayerColor ^ 1] << tr("将军");
+    if (judgePossibleToMove(PieceColor(curPlayerColor)))
+        player[curPlayerColor]->Go();
+    else qDebug() << playerStr[curPlayerColor ^ 1] << tr("胜利");
+}
+
 
 Board::~Board() noexcept
 {
@@ -342,7 +361,7 @@ float Board::getX ( int xPos )
 void Board::changePlayer()
 {
     curPlayerColor ^= 1;
-    player[curPlayerColor]->Go();
+    judgeAndGo();
 }
 
 void Board::SetMovable()
@@ -427,12 +446,6 @@ bool Board::Move(int fromX, int fromY, int toX, int toY)
     return true;
 }
 
-bool Board::hasPiece(int x, int y)
-{
-    if (content[x][y]->Invalid) return false;
-    else return true;
-}
-
 PieceColor Board::GetCurPlayerColor()
 {
     return PieceColor(curPlayerColor);
@@ -464,6 +477,12 @@ bool Board::judgeMove(int fromX, int fromY, int toX, int toY)
             if (!judgeJiang(fromX, fromY, toX, toY)) return false;
     }
 
+    if (judgeMoveToJiangjun(fromX, fromY, toX, toY)) return false;
+    return true;
+}
+
+bool Board::judgeMoveToJiangjun(int fromX, int fromY, int toX, int toY)
+{
     auto tempPiece = content[toX][toY];
     content[toX][toY] = content[fromX][fromY];
     content[toX][toY]->X = toX;
@@ -475,9 +494,293 @@ bool Board::judgeMove(int fromX, int fromY, int toX, int toY)
     content[fromX][fromY]->X = fromX;
     content[fromX][fromY]->Y = fromY;
     content[toX][toY] = tempPiece;
-    if (jiangJun) return false;
+    if (jiangJun) return true;
+    else return false;
+}
 
-    return true;
+bool Board::judgePossibleToMove(PieceColor color)
+{
+    int dstX, dstY;
+    for (int i = 0; i <= 9; ++i)
+        for (int j = 0; j <= 8; ++j)
+        {
+            if (content[i][j]->Invalid == 0 && content[i][j]->GetColor() == color)
+            {
+                switch(content[i][j]->GetType())
+                {
+                    case Che:
+                    case Pao:
+                        for (int t = i - 1; t >= 0; --t)
+                        {
+                            if (content[t][j]->Invalid)
+                            {
+                                if (!judgeMoveToJiangjun(i, j, t, j)) {
+                                    qDebug() << i << j << t << j;
+                                    return true;
+                                }
+                            }
+                            else
+                            {
+                                if (content[t][j]->GetColor() != color)
+                                {
+                                    if (content[i][j]->GetType() == Pao)
+                                    {
+                                        for (int k = t - 1; k >= 0; --k)
+                                        {
+                                            if (!content[k][j]->Invalid && content[k][j]->GetColor() != color)
+                                            {
+                                                if (!judgeMoveToJiangjun(i, j, k, j)) {
+                                                    qDebug() << i << j << k << j;
+                                                    return true;
+                                                }
+                                                break;
+                                            }
+                                        }
+                                    }
+                                    else if (!judgeMoveToJiangjun(i, j, t, j)) {
+                                        qDebug() << i << j << t << j;
+                                        return true;
+                                    }
+                                    break;
+                                }
+                                break;
+                            }
+                        }
+                        for (int t = i + 1; t <= 9; ++t)
+                        {
+                            if (content[t][j]->Invalid)
+                            {
+                                if (!judgeMoveToJiangjun(i, j, t, j)) {
+                                    qDebug() << i << j << t << j;
+                                    return true;
+                                }
+                            }
+                            else
+                            {
+                                if (content[t][j]->GetColor() != color)
+                                {
+                                    if (content[i][j]->GetType() == Pao)
+                                    {
+                                        for (int k = t + 1; k <= 9; ++k)
+                                        {
+                                            if (!content[k][j]->Invalid && content[k][j]->GetColor() != color)
+                                            {
+                                                if (!judgeMoveToJiangjun(i, j, k, j)) {
+                                                    qDebug() << i << j << k << j;
+                                                    return true;
+                                                }
+                                                break;
+                                            }
+                                        }
+                                    }
+                                    else if (!judgeMoveToJiangjun(i, j, t, j)) {
+                                        qDebug() << i << j << t << j;
+                                        return true;
+                                    }
+                                }
+                                break;
+                            }
+                        }
+                        for (int t = j - 1; t >= 0; --t)
+                        {
+                            if (content[i][t]->Invalid)
+                            {
+                                if (!judgeMoveToJiangjun(i, j, i, t)) {
+                                    qDebug() << i << j << i << t;
+                                    return true;
+                                }
+                            }
+                            else
+                            {
+                                if (content[i][t]->GetColor() != color)
+                                {
+                                    if (content[i][j]->GetType() == Pao)
+                                    {
+                                        for (int k = t - 1; k >= 0; --k)
+                                        {
+                                            if (!content[i][k]->Invalid && content[i][k]->GetColor() != color)
+                                            {
+                                                if (!judgeMoveToJiangjun(i, j, i, k)) {
+                                                    qDebug() << i << j << i << k;
+                                                    return true;
+                                                }
+                                                break;
+                                            }
+                                        }
+                                    }
+                                    else if (!judgeMoveToJiangjun(i, j, i, t)) {
+                                        qDebug() << i << j << i << t;
+                                        return true;
+                                    }
+                                }
+                                break;
+                            }
+                        }
+                        for (int t = j + 1; t <= 8; ++t)
+                        {
+                            if (content[i][t]->Invalid)
+                            {
+                                if (!judgeMoveToJiangjun(i, j, i, t)) {
+                                    qDebug() << i << j << i << t;
+                                    return true;
+                                }
+                            }
+                            else
+                            {
+                                if (content[i][t]->GetColor() != color)
+                                {
+                                    if (content[i][j]->GetType() == Pao)
+                                    {
+                                        for (int k = t + 1; k <= 8; ++k)
+                                        {
+                                            if (!content[i][k]->Invalid && content[i][k]->GetColor() != color)
+                                            {
+                                                if (!judgeMoveToJiangjun(i, j, i, k)) {
+                                                    qDebug() << i << j << i << k;
+                                                    return true;
+                                                }
+                                                break;
+                                            }
+                                        }
+                                    }
+                                    else if (!judgeMoveToJiangjun(i, j, i, t)) {
+                                        qDebug() << i << j << i << t;
+                                        return true;
+                                    }
+                                }
+                                break;
+                            }
+                        }
+                        break;
+                    case Ma:
+                        for (auto offset : maOffset)
+                        {
+                            dstX = i + offset.first;
+                            if (dstX < 0) continue;
+                            if (dstX > 9) continue;
+                            dstY = j + offset.second;
+                            if (dstY < 0) continue;
+                            if (dstY > 8) continue;
+                            if (!content[dstX][dstY]->Invalid
+                                && content[dstX][dstY]->GetColor() == color) continue;
+                            if (content[i + offset.first / 2][j + offset.second / 2]->Invalid && !judgeMoveToJiangjun(i, j, dstX, dstY)) {
+                                qDebug() << i << j << dstX << dstY;
+                                return true;
+                            }
+                        }
+                        break;
+                    case Zu:
+                        if (color == Red)
+                        {
+                            if (i < 5)
+                            {
+                                if ((content[i + 1][j]->Invalid || content[i + 1][j]->GetColor() == Black)
+                                    && !judgeMoveToJiangjun(i, j, i + 1, j)){
+                                        qDebug() << i << j << i + 1 << j;
+                                        return true;
+                                    }
+                            }
+                            else
+                            {
+                                for (auto offset : zuOffset)
+                                {
+                                    dstX = i + offset.first;
+                                    if (dstX < 0) continue;
+                                    dstY = j + offset.second;
+                                    if (dstY < 0) continue;
+                                    if (dstY > 8) continue;
+                                    if (!content[dstX][dstY]->Invalid
+                                        && content[dstX][dstY]->GetColor() == color) continue;
+                                    if (!judgeMoveToJiangjun(i, j, dstX, dstY)) {
+                                        qDebug() << i << j << dstX << dstY;
+                                        return true;
+                                    }
+                                }
+                            }
+                        }
+                        else
+                        {
+                            if (i > 4)
+                            {
+                                if ((content[i - 1][j]->Invalid || content[i - 1][j]->GetColor() == Red)
+                                    && !judgeMoveToJiangjun(i, j, i - 1, j)){
+                                        qDebug() << i << j << i - 1 << j;
+                                        return true;
+                                    }
+                            }
+                            else
+                            {
+                                for (auto offset : zuOffset)
+                                {
+                                    dstX = i - offset.first;
+                                    if (dstX < 0) continue;
+                                    dstY = j - offset.second;
+                                    if (dstY < 0) continue;
+                                    if (dstY > 8) continue;
+                                    if (!content[dstX][dstY]->Invalid
+                                        && content[dstX][dstY]->GetColor() == color) continue;
+                                    if (!judgeMoveToJiangjun(i, j, dstX, dstY)) {
+                                        qDebug() << i << j << dstX << dstY;
+                                        return true;
+                                    }
+                                }
+                            }
+                        }
+                        break;
+                    case Xiang:
+                        for (auto offset : xiangOffset)
+                        {
+                            dstX = i + offset.first;
+                            if (dstX < (color == Red ? 0 : 5)) continue;
+                            if (dstX > (color == Red ? 4 : 9)) continue;
+                            dstY = j + offset.second;
+                            if (dstY < 0) continue;
+                            if (dstY > 8) continue;
+                            if (!content[dstX][dstY]->Invalid
+                                && content[dstX][dstY]->GetColor() == color) continue;
+                            if (content[i + offset.first / 2][j + offset.second / 2]->Invalid && !judgeMoveToJiangjun(i, j, dstX, dstY)) {
+                                qDebug() << i << j << dstX << dstY;
+                                return true;
+                            }
+                        }
+                        break;
+                    case Shi:
+                        for (auto offset : shiOffset)
+                        {
+                            dstX = i + offset.first;
+                            if (dstX < (color == Red ? 0 : 7)) continue;
+                            if (dstX > (color == Red ? 2 : 9)) continue;
+                            dstY = j + offset.second;
+                            if (dstY < 3) continue;
+                            if (dstY > 5) continue;
+                            if (!content[dstX][dstY]->Invalid
+                                && content[dstX][dstY]->GetColor() == color) continue;
+                            if (!judgeMoveToJiangjun(i, j, dstX, dstY)) {
+                                qDebug() << i << j << dstX << dstY;
+                                return true;
+                            }
+                        }
+                        break;
+                    case Jiang:
+                        for (auto offset : jiangOffset)
+                        {
+                            dstX = i + offset.first;
+                            if (dstX < (color == Red ? 0 : 7)) continue;
+                            if (dstX > (color == Red ? 2 : 9)) continue;
+                            dstY = j + offset.second;
+                            if (dstY < 3) continue;
+                            if (dstY > 5) continue;
+                            if (!content[dstX][dstY]->Invalid
+                                && content[dstX][dstY]->GetColor() == color) continue;
+                            if (!judgeMoveToJiangjun(i, j, dstX, dstY)) {
+                                qDebug() << i << j << dstX << dstY;
+                                return true;
+                            }
+                        }
+                }
+            }
+        }
+    return false;
 }
 
 bool Board::judgeChe(int fromX, int fromY, int toX, int toY)
@@ -693,4 +996,13 @@ bool Board::judgeJiangjun(PieceColor color)
         ) return true;
     }
     return false;
+}
+
+Piece * Board::GetPiece(int x, int y)
+{
+    if (x < 0) return nullptr;
+    if (x > 9) return nullptr;
+    if (y < 0) return nullptr;
+    if (y > 8) return nullptr;
+    return content[x][y];
 }

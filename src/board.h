@@ -103,7 +103,6 @@ class Board : public QGraphicsScene
     void mouseMoveEvent ( QGraphicsSceneMouseEvent * event ) override;
     void dragMoveEvent(QGraphicsSceneDragDropEvent *event) override;
     void dropEvent(QGraphicsSceneDragDropEvent *event) override;
-    bool hasPiece(int x, int y);
     bool judgeMove(int fromX, int fromY, int toX, int toY);
     bool judgeChe(int fromX, int fromY, int toX, int toY);
     bool judgeMa(int fromX, int fromY, int toX, int toY);
@@ -113,6 +112,9 @@ class Board : public QGraphicsScene
     bool judgeShi(int fromX, int fromY, int toX, int toY);
     bool judgeJiang(int fromX, int fromY, int toX, int toY);
     bool judgeJiangjun(PieceColor color);
+    bool judgeMoveToJiangjun(int fromX, int fromY, int toX, int toY);
+    bool judgePossibleToMove(PieceColor color);
+    void judgeAndGo();
 
 private slots:
     void changePlayer();
@@ -125,6 +127,7 @@ public:
     ~Board() noexcept;
     PieceColor GetCurPlayerColor();
     void SetMovable();
+    Piece* GetPiece(int x, int y);
     bool Move(int fromX, int fromY, int toX, int toY);
     QString ToFenString();
 };

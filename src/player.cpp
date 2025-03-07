@@ -125,5 +125,9 @@ void Engine::handleShortMoveString(QString moveString)
     int fromY = moveString[0].toLatin1() - 'a';
     int toX = moveString[3].toLatin1() - '0';
     int toY = moveString[2].toLatin1() - 'a';
-    board->Move(fromX, fromY, toX, toY);
+    auto fromPiece = board->GetPiece(fromX, fromY);
+    auto toPiece = board->GetPiece(toX, toY);
+    if (fromPiece != nullptr && toPiece != nullptr && !fromPiece->Invalid
+        && (toPiece->Invalid || fromPiece->GetColor() != toPiece->GetColor()))
+            board->Move(fromX, fromY, toX, toY);
 }
