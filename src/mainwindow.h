@@ -39,6 +39,7 @@
 #include <QTextEdit>
 #include <QStatusBar>
 #include <QLabel>
+#include <QTransform>
 
 #include "board.h"
 #include "gamestartdialog.h"
@@ -71,7 +72,7 @@ class MainWindow : public QMainWindow
     QPointer <Board> board;
     BoardView boardView;
     QLabel status;
-    QAction *prevStep, *nextStep, *draw, *resign;
+    QAction *undo, *redo, *draw, *resign;
 private slots:
     void onStatusUpdated(const QString & str);
     void onDialogWanted(const QString & str);
@@ -79,6 +80,7 @@ private slots:
     void onAboutTriggered();
     void onAboutQtTriggered();
     void onShowLogTriggered();
+    void onBoardInfoChanged(bool allowMove, bool allowUndo, bool allowRedo, bool isBlack);
 
 public:
     /**

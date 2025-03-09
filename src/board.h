@@ -45,10 +45,6 @@
 #include "player.h"
 #include "log.h"
 
-/**
- * @todo write docs
- */
-
 class Board;
 class Player;
 
@@ -86,7 +82,7 @@ class Board : public QGraphicsScene
     int curPlayerColor;
     BoardStatus status = BoardBanned;
     Piece *selectedPiece;
-    int moveNumber;
+    int moveNumber, lastMove;
     QGraphicsRectItem *focusFrame;
 
     static const QVector <QPair<int, int>> jiangOffset;
@@ -116,7 +112,6 @@ class Board : public QGraphicsScene
     bool judgeJiangjun(PieceColor color);
     bool judgeMoveToJiangjun(int fromX, int fromY, int toX, int toY);
     bool judgePossibleToMove(PieceColor color);
-    void judgeAndGo();
 
 private slots:
     void changePlayer();
@@ -127,11 +122,16 @@ public:
      */
     Board(PlayerType playerType[]);
     ~Board() noexcept;
+    void Start();
+    void Rotate(bool ok);
     PieceColor GetCurPlayerColor();
-    void SetMovable();
+    void SetMovable(bool allowMove);
     Piece* GetPiece(int x, int y);
     bool Move(int fromX, int fromY, int toX, int toY);
     QString ToFenString();
+
+signals:
+    void boardInfoChanged(bool allowMove, bool allowUndo, bool allowRedo, bool isBlack);
 };
 
 #endif // BOARD_H

@@ -79,10 +79,10 @@ MainWindow::MainWindow()
     gameMenu->addAction(tr("退出"), this, &MainWindow::close);
 
     auto operationMenu = menubar->addMenu(tr("操作"));
-    prevStep = operationMenu->addAction(tr("上一步"));
-    prevStep->setDisabled(true);
-    nextStep = operationMenu->addAction(tr("下一步"));
-    nextStep->setDisabled(true);
+    undo = operationMenu->addAction(tr("悔棋"));
+    undo->setDisabled(true);
+    redo = operationMenu->addAction(tr("重下"));
+    redo->setDisabled(true);
     draw = operationMenu->addAction(tr("求和"));
     draw->setDisabled(true);
     resign = operationMenu->addAction(tr("认输"));
@@ -117,7 +117,6 @@ void MainWindow::onStatusUpdated(const QString& str)
     status.setText(str);
 }
 
-
 void MainWindow::onCreateTriggered()
 {
     PlayerType type[2];
@@ -133,9 +132,13 @@ void MainWindow::onCreateTriggered()
     logWindow.clear();
 
     auto newBoard = new Board(type);
+
     boardView.setScene(newBoard);
     delete board;
     board = newBoard;
+    draw->setEnabled(true);
+    connect(board, &Board::boardInfoChanged, this, &MainWindow::onBoardInfoChanged);
+    board->Start();
 }
 
 void MainWindow::onAboutTriggered()
@@ -152,3 +155,30 @@ void MainWindow::onShowLogTriggered()
 {
     logWindow.setVisible(true);
 }
+
+void MainWindow::onBoardInfoChanged(bool allowMove, bool allowUndo, bool allowRedo, bool isBlack)
+{
+    if (allowMove)
+    {
+        if (allowUndo) undo->setEnabled(true);
+        if (allowRedo) redo->setEnabled(true);
+        draw->setEnabled(true);
+        resign->setEnabled(true);
+        if (isBlack) {
+            boardView.rotate(180);
+            board->Rotate(true);
+        }
+        else {
+            boardView.resetTransform();
+            board->Rotate(false);
+        }
+    }
+    else
+    {
+        undo->setDisabled(true);
+        redo->setDisabled(true);
+        draw->setDisabled(true);
+        resign->setDisabled(true);
+    }
+}
+

@@ -105,12 +105,15 @@ void Piece::paint(QPainter* painter, const QStyleOptionGraphicsItem* option, QWi
 }
 
 Piece::Piece(PieceType type, PieceColor color, int x, int y)
-:type(type), color(color), X(x), Y(y) {}
+:type(type), color(color), X(x), Y(y) {
+    setTransformOriginPoint(45, 45);
+}
 
 Piece::Piece(int x, int y)
 :X(x), Y(y)
 {
     Invalid = 1;
+    setTransformOriginPoint(45, 45);
 }
 
 Piece::Piece(const Piece& p)
@@ -121,6 +124,7 @@ Piece::Piece(const Piece& p)
         type = p.type;
         color = p.color;
     }
+    setTransformOriginPoint(45, 45);
 }
 
 Piece & Piece::operator=(const Piece& p)

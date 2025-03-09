@@ -121,12 +121,10 @@ Board::Board(PlayerType playerType[])
     }
     initPieces(QString("rnbakabnr/9/1c5c1/p1p1p1p1p/9/9/P1P1P1P1P/1C5C1/9/RNBAKABNR"));
     curPlayerColor = Red;
-    moveNumber = 0;
-
-    judgeAndGo();
+    moveNumber = lastMove = 0;
 }
 
-void Board::judgeAndGo()
+void Board::Start()
 {
     if (moveNumber == 0)
     {
@@ -136,13 +134,10 @@ void Board::judgeAndGo()
             return;
         }
     }
-    if (judgeJiangjun(PieceColor(curPlayerColor)))
-        bar() << (curPlayerColor == Red ? tr("黑方") : tr("红方")) + tr("将军");
     if (judgePossibleToMove(PieceColor(curPlayerColor)))
         player[curPlayerColor]->Go();
     else dialog() << (curPlayerColor == Red ? tr("黑方") : tr("红方")) + tr("胜利");
 }
-
 
 Board::~Board() noexcept
 {
@@ -360,12 +355,30 @@ float Board::getX ( int xPos )
 void Board::changePlayer()
 {
     curPlayerColor ^= 1;
-    judgeAndGo();
+    Start();
 }
 
-void Board::SetMovable()
+void Board::SetMovable(bool allowMove)
 {
-    status = BoardPrepared;
+    if (allowMove)
+    {
+        bar() << "就绪";
+
+        emit boardInfoChanged(1, moveNumber != 0, moveNumber != lastMove, curPlayerColor);
+        status = BoardPrepared;
+    }
+    else
+    {
+        emit boardInfoChanged(0, 0, 0, curPlayerColor);
+        status = BoardBanned;
+    }
+}
+
+void Board::Rotate(bool ok)
+{
+    for (int i = 0; i <= 9; ++i)
+        for (int j = 0; j <= 8; ++j)
+            content[i][j]->setRotation(ok ? 180 : 0);
 }
 
 void Board::mousePressEvent(QGraphicsSceneMouseEvent* event)
@@ -431,17 +444,20 @@ void Board::handlePutEvent(QPointF & pos)
             || (clickedPiece->Invalid == 0
                 && clickedPiece->GetColor() == selectedPiece->GetColor())) return;
         if (Move(selectedPiece->X, selectedPiece->Y, clickedPiece->X, clickedPiece->Y))
+        {
+            SetMovable(false);
             removeItem(focusFrame);
+        }
     }
 }
 
 bool Board::Move(int fromX, int fromY, int toX, int toY)
 {
     if (!judgeMove(fromX, fromY, toX, toY)) return false;
-    status = BoardBanned;
-    ++moveNumber;
+    lastMove = ++moveNumber;
     execMoveOnBoard(fromX, fromY, toX, toY);
-    bar() << tr("就绪");
+    if (judgeJiangjun(PieceColor(curPlayerColor ^ 1)))
+        bar() << (curPlayerColor == Red ? tr("黑方") : tr("红方")) + tr("将军");
     QTimer::singleShot(200, this, &Board::changePlayer);
     return true;
 }

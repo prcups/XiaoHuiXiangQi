@@ -37,7 +37,7 @@ Player::Player(Board *board, PieceColor color)
 
 void Player::Go()
 {
-    board->SetMovable();
+    board->SetMovable(true);
 }
 
 PieceColor Player::GetColor()
