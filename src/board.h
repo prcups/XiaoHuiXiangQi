@@ -68,6 +68,12 @@ public:
     BoardBackground();
 };
 
+class Frame : public QGraphicsRectItem
+{
+public:
+    Frame();
+};
+
 enum BoardStatus
 {
     BoardBanned, BoardPrepared, PieceSelected
@@ -83,7 +89,7 @@ class Board : public QGraphicsScene
     BoardStatus status = BoardBanned;
     Piece *selectedPiece;
     int moveNumber, lastMove;
-    QGraphicsRectItem *focusFrame;
+    Frame focusFrame, oldFrame, newFrame;
 
     static const QVector <QPair<int, int>> jiangOffset;
     static const QVector <QPair<int, int>> maOffset;
@@ -95,7 +101,6 @@ class Board : public QGraphicsScene
     float getX(int xPos);
     float getY(int yPos);
     void handlePutEvent(QPointF & pos);
-    void execMoveOnBoard(int fromX, int fromY, int toX, int toY);
     void mousePressEvent ( QGraphicsSceneMouseEvent * event ) override;
     void mouseReleaseEvent ( QGraphicsSceneMouseEvent * event ) override;
     void mouseMoveEvent ( QGraphicsSceneMouseEvent * event ) override;

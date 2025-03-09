@@ -108,11 +108,15 @@ void BoardBackground::drawSoldierPos(QPainter* painter, int xPos, int yPos)
     }
 }
 
+Frame::Frame(): QGraphicsRectItem(0, 0, 90, 90)
+{
+    setZValue(-1);
+}
+
 Board::Board(PlayerType playerType[])
 {
     background = new BoardBackground;
     addItem(background);
-    focusFrame = new QGraphicsRectItem(0, 0, 90, 90);
     for (int i = 0; i < 2; ++i)
     {
         if (playerType[i] == Human)
@@ -136,7 +140,10 @@ void Board::Start()
     }
     if (judgePossibleToMove(PieceColor(curPlayerColor)))
         player[curPlayerColor]->Go();
-    else dialog() << (curPlayerColor == Red ? tr("黑方") : tr("红方")) + tr("胜利");
+    else {
+        dialog() << (curPlayerColor == Red ? tr("黑方") : tr("红方")) + tr("胜利");
+        bar() << (curPlayerColor == Red ? tr("黑方") : tr("红方")) + tr("胜利");
+    }
 }
 
 Board::~Board() noexcept
@@ -147,26 +154,6 @@ Board::~Board() noexcept
     delete background;
     delete player[0];
     delete player[1];
-}
-
-void Board::execMoveOnBoard(int fromX, int fromY, int toX, int toY)
-{
-    removeItem(content[toX][toY]);
-    delete content[toX][toY];
-    content[toX][toY] = content[fromX][fromY];
-    content[toX][toY]->X = toX;
-    content[toX][toY]->Y = toY;
-    if (content[toX][toY]->GetType() == Jiang)
-        player[content[toX][toY]->GetColor()]->JiangPtr = content[toX][toY];
-    content[fromX][fromY] = new Piece(fromX, fromY);
-    addItem(content[fromX][fromY]);
-    content[fromX][fromY]->setPos(getX(fromY), getY(fromX));
-    content[fromX][fromY]->X = fromX;
-    content[fromX][fromY]->Y = fromY;
-    QPropertyAnimation *animation = new QPropertyAnimation(content[toX][toY], "pos");
-    animation->setDuration(100);
-    animation->setEndValue(QPointF(getX(toY), getY(toX)));
-    animation->start();
 }
 
 bool Board::initPieces(QStringView fenMain)
@@ -391,9 +378,9 @@ void Board::mousePressEvent(QGraphicsSceneMouseEvent* event)
         if (clickedPiece == nullptr || clickedPiece->Invalid || clickedPiece->GetColor() != curPlayerColor) return;
         selectedPiece = clickedPiece;
         status = PieceSelected;
-        focusFrame->setPos(getX(selectedPiece->Y), getY(selectedPiece->X));
-        if (focusFrame->scene() != this)
-            addItem(focusFrame);
+        focusFrame.setPos(getX(selectedPiece->Y), getY(selectedPiece->X));
+        if (focusFrame.scene() != this)
+            addItem(&focusFrame);
     }
 }
 
@@ -446,7 +433,7 @@ void Board::handlePutEvent(QPointF & pos)
         if (Move(selectedPiece->X, selectedPiece->Y, clickedPiece->X, clickedPiece->Y))
         {
             SetMovable(false);
-            removeItem(focusFrame);
+            removeItem(&focusFrame);
         }
     }
 }
@@ -455,9 +442,33 @@ bool Board::Move(int fromX, int fromY, int toX, int toY)
 {
     if (!judgeMove(fromX, fromY, toX, toY)) return false;
     lastMove = ++moveNumber;
-    execMoveOnBoard(fromX, fromY, toX, toY);
+
+    oldFrame.setPos(getX(fromY), getY(fromX));
+        if (oldFrame.scene() != this)
+            addItem(&oldFrame);
+    newFrame.setPos(getX(toY), getY(toX));
+        if (newFrame.scene() != this)
+            addItem(&newFrame);
+
+    removeItem(content[toX][toY]);
+    delete content[toX][toY];
+    content[toX][toY] = content[fromX][fromY];
+    content[toX][toY]->X = toX;
+    content[toX][toY]->Y = toY;
+    if (content[toX][toY]->GetType() == Jiang)
+        player[content[toX][toY]->GetColor()]->JiangPtr = content[toX][toY];
+    content[fromX][fromY] = new Piece(fromX, fromY);
+    addItem(content[fromX][fromY]);
+    content[fromX][fromY]->setPos(getX(fromY), getY(fromX));
+    content[fromX][fromY]->X = fromX;
+    content[fromX][fromY]->Y = fromY;
+    QPropertyAnimation *animation = new QPropertyAnimation(content[toX][toY], "pos");
+    animation->setDuration(100);
+    animation->setEndValue(QPointF(getX(toY), getY(toX)));
+    animation->start();
+
     if (judgeJiangjun(PieceColor(curPlayerColor ^ 1)))
-        bar() << (curPlayerColor == Red ? tr("黑方") : tr("红方")) + tr("将军");
+        bar() << (curPlayerColor == Red ? tr("红方") : tr("黑方")) + tr("将军");
     QTimer::singleShot(200, this, &Board::changePlayer);
     return true;
 }
@@ -982,3 +993,5 @@ Piece * Board::GetPiece(int x, int y)
     if (y > 8) return nullptr;
     return content[x][y];
 }
+
+
