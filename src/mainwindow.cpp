@@ -42,6 +42,7 @@ BoardView::BoardView()
 
 LogWindow::LogWindow(): edit(new QTextEdit)
 {
+    setVisible(false);
     setWindowTitle(tr("日志"));
     setAllowedAreas(Qt::LeftDockWidgetArea);
     setFeatures(QDockWidget::DockWidgetClosable);
@@ -49,7 +50,12 @@ LogWindow::LogWindow(): edit(new QTextEdit)
     setWidget(edit.get());
 }
 
-void LogWindow::logReceived(const QString& str)
+void LogWindow::clear()
+{
+    edit->clear();
+}
+
+void LogWindow::onLogReceived(const QString& str)
 {
     edit->insertPlainText(str);
 }
@@ -60,37 +66,57 @@ MainWindow::MainWindow()
     setWindowIcon(QIcon("icon.jpg"));
 
     addDockWidget(Qt::LeftDockWidgetArea, &logWindow);
-    connect(&log(), &Log::NewLogOutput, &logWindow, &LogWindow::logReceived);
+    connect(&log(), &Log::NewLogOutput, &logWindow, &LogWindow::onLogReceived);
+    connect(&bar(), &Log::NewLogOutput, this, &MainWindow::onStatusUpdated);
+    connect(&dialog(), &Log::NewLogOutput, this, &MainWindow::onDialogWanted);
 
-    auto menubar = new QMenuBar;
+    auto menubar = menuBar();
 
     auto gameMenu = menubar->addMenu(tr("对局"));
     gameMenu->addAction(tr("新建"), this, &MainWindow::onCreateTriggered);
+    gameMenu->addAction(tr("查看日志"), this, &MainWindow::onShowLogTriggered);
     gameMenu->addSeparator();
     gameMenu->addAction(tr("退出"), this, &MainWindow::close);
 
     auto operationMenu = menubar->addMenu(tr("操作"));
-    operationMenu->addAction(tr("上一步"));
-    operationMenu->addAction(tr("下一步"));
-    operationMenu->addAction(tr("求和"));
-    operationMenu->addAction(tr("认输"));
+    prevStep = operationMenu->addAction(tr("上一步"));
+    prevStep->setDisabled(true);
+    nextStep = operationMenu->addAction(tr("下一步"));
+    nextStep->setDisabled(true);
+    draw = operationMenu->addAction(tr("求和"));
+    draw->setDisabled(true);
+    resign = operationMenu->addAction(tr("认输"));
+    resign->setDisabled(true);
     operationMenu->addSeparator();
-    operationMenu->addAction(tr("显示日志"));
     operationMenu->addAction(tr("设置"));
 
     auto aboutMenu = menubar->addMenu(tr("关于"));
     aboutMenu->addAction(tr("关于"), this, &MainWindow::onAboutTriggered);
     aboutMenu->addAction(tr("关于Qt"), this, &MainWindow::onAboutQtTriggered);
 
-    this->setMenuBar(menubar);
     this->setMinimumSize(560, 640);
     this->setCentralWidget(&boardView);
+
+    statusBar()->addWidget(&status);
+
+    status.setText(tr("就绪"));
 }
 
 MainWindow::~MainWindow()
 {
     delete board;
 }
+
+void MainWindow::onDialogWanted(const QString& str)
+{
+    QMessageBox::information(this, "", str);
+}
+
+void MainWindow::onStatusUpdated(const QString& str)
+{
+    status.setText(str);
+}
+
 
 void MainWindow::onCreateTriggered()
 {
@@ -103,6 +129,9 @@ void MainWindow::onCreateTriggered()
             type[i] = Human;
         else type[i] = Computer;
     }
+
+    logWindow.clear();
+
     auto newBoard = new Board(type);
     boardView.setScene(newBoard);
     delete board;
@@ -117,4 +146,9 @@ void MainWindow::onAboutTriggered()
 void MainWindow::onAboutQtTriggered()
 {
     QMessageBox::aboutQt(this, tr("关于Qt"));
+}
+
+void MainWindow::onShowLogTriggered()
+{
+    logWindow.setVisible(true);
 }

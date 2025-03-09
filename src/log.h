@@ -48,5 +48,7 @@ public:
 };
 
 Log & log();
+Log & bar();
+Log & dialog();
 
 #endif // LOG_H

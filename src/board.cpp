@@ -128,20 +128,19 @@ Board::Board(PlayerType playerType[])
 
 void Board::judgeAndGo()
 {
-    static QString playerStr[2] = {tr("红方"), tr("黑方")};
     if (moveNumber == 0)
     {
         if (judgeJiangjun(PieceColor(curPlayerColor ^ 1)))
         {
-            log() << tr("错误：一方可直接吃掉对方将军\n");
+            dialog() << tr("错误：一方可直接吃掉对方将军");
             return;
         }
     }
     if (judgeJiangjun(PieceColor(curPlayerColor)))
-        qDebug() << playerStr[curPlayerColor ^ 1] << tr("将军\n");
+        bar() << (curPlayerColor == Red ? tr("黑方") : tr("红方")) + tr("将军");
     if (judgePossibleToMove(PieceColor(curPlayerColor)))
         player[curPlayerColor]->Go();
-    else qDebug() << playerStr[curPlayerColor ^ 1] << tr("胜利\n");
+    else dialog() << (curPlayerColor == Red ? tr("黑方") : tr("红方")) + tr("胜利");
 }
 
 
@@ -442,6 +441,7 @@ bool Board::Move(int fromX, int fromY, int toX, int toY)
     status = BoardBanned;
     ++moveNumber;
     execMoveOnBoard(fromX, fromY, toX, toY);
+    bar() << tr("就绪");
     QTimer::singleShot(200, this, &Board::changePlayer);
     return true;
 }

@@ -68,6 +68,7 @@ void Engine::Go()
         deferGo = 1;
         return;
     }
+    bar() << (playerColor == Red ? tr("红方") : tr("黑方")) + "正在思考...";
     status = EngineThinking;
     QString output = "position fen ";
     output.append(board->ToFenString());
@@ -88,6 +89,7 @@ void Engine::handleOutput()
                 log() << (this->playerColor == Red ? QString("Red: ") : QString("Black: ")) << output;
                 if (output == "uciok\n")
                 {
+                    log() << "\n";
                     status = EnginePrepared;
                     if (deferGo)
                     {

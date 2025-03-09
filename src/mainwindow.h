@@ -37,6 +37,8 @@
 #include <QMessageBox>
 #include <QDockWidget>
 #include <QTextEdit>
+#include <QStatusBar>
+#include <QLabel>
 
 #include "board.h"
 #include "gamestartdialog.h"
@@ -56,8 +58,9 @@ class LogWindow: public QDockWidget
     QScopedPointer <QTextEdit> edit;
 public:
     LogWindow();
+    void clear();
 public slots:
-    void logReceived(const QString & str);
+    void onLogReceived(const QString & str);
 };
 
 class MainWindow : public QMainWindow
@@ -67,10 +70,15 @@ class MainWindow : public QMainWindow
     LogWindow logWindow;
     QPointer <Board> board;
     BoardView boardView;
+    QLabel status;
+    QAction *prevStep, *nextStep, *draw, *resign;
 private slots:
+    void onStatusUpdated(const QString & str);
+    void onDialogWanted(const QString & str);
     void onCreateTriggered();
     void onAboutTriggered();
     void onAboutQtTriggered();
+    void onShowLogTriggered();
 
 public:
     /**
