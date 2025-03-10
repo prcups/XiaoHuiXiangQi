@@ -37,12 +37,23 @@ Player::Player(Board *board, PieceColor color)
 
 void Player::Go()
 {
+    bar() << tr("就绪");
     board->SetMovable(true);
 }
 
 PieceColor Player::GetColor()
 {
     return playerColor;
+}
+
+PlayerType Player::GetType()
+{
+    return type;
+}
+
+void Player::Pause()
+{
+    board->SetMovable(false);
 }
 
 Engine::Engine(Board *board, PieceColor color, QString engineName)
@@ -74,6 +85,15 @@ void Engine::Go()
     output.append(board->ToFenString());
     output.append("\ngo depth 5\n");
     engineProcess->write(output.toLocal8Bit());
+}
+
+void Engine::Pause()
+{
+    if (status == EngineThinking)
+    {
+        status = EnginePrepared;
+        engineProcess->write("stop\n");
+    }
 }
 
 void Engine::handleOutput()

@@ -44,9 +44,22 @@
 #include "piece.h"
 #include "player.h"
 #include "log.h"
+#include "record.h"
 
 class Board;
 class Player;
+
+struct BoardInfo
+{
+    bool isEnd;
+    bool isBlack;
+    bool isHuman;
+    bool ifJiangjun;
+    bool hasPrev;
+    bool hasNext;
+    bool isPaused;
+};
+Q_DECLARE_METATYPE(BoardInfo)
 
 class BoardBackground : public QGraphicsItem
 {
@@ -55,11 +68,11 @@ class BoardBackground : public QGraphicsItem
     void drawSoldierPos(QPainter *painter, int xPos, int yPos);
     QRectF boundingRect() const override;
     void paint ( QPainter * painter, const QStyleOptionGraphicsItem * option, QWidget * widget ) override;
-    float getX(int xPos)
+    float yToPosX(int xPos)
     {
         return boardLeft + xPos * widthDis;
     }
-    float getY(int yPos)
+    float xToPosY(int yPos)
     {
         return boardTop + yPos * heightDis;
     }
@@ -88,8 +101,11 @@ class Board : public QGraphicsScene
     int curPlayerColor;
     BoardStatus status = BoardBanned;
     Piece *selectedPiece;
-    int moveNumber, lastMove;
+    int moveNumber, lastNumber;
+    bool origJiangJun, origEnd, isPaused;
     Frame focusFrame, oldFrame, newFrame;
+    QString origFenStr;
+    QList <Record> recordList;
 
     static const QVector <QPair<int, int>> jiangOffset;
     static const QVector <QPair<int, int>> maOffset;
@@ -98,14 +114,18 @@ class Board : public QGraphicsScene
     static const QVector <QPair<int, int>> zuOffset;
 
     bool initPieces(QStringView fenMain);
-    float getX(int xPos);
-    float getY(int yPos);
+    float yToPosX(int xPos);
+    float xToPosY(int yPos);
+    QString toShortFenStr();
+    void doPause();
+
     void handlePutEvent(QPointF & pos);
     void mousePressEvent ( QGraphicsSceneMouseEvent * event ) override;
     void mouseReleaseEvent ( QGraphicsSceneMouseEvent * event ) override;
     void mouseMoveEvent ( QGraphicsSceneMouseEvent * event ) override;
     void dragMoveEvent(QGraphicsSceneDragDropEvent *event) override;
     void dropEvent(QGraphicsSceneDragDropEvent *event) override;
+
     bool judgeMove(int fromX, int fromY, int toX, int toY);
     bool judgeChe(int fromX, int fromY, int toX, int toY);
     bool judgeMa(int fromX, int fromY, int toX, int toY);
@@ -115,8 +135,10 @@ class Board : public QGraphicsScene
     bool judgeShi(int fromX, int fromY, int toX, int toY);
     bool judgeJiang(int fromX, int fromY, int toX, int toY);
     bool judgeJiangjun(PieceColor color);
-    bool judgeMoveToJiangjun(int fromX, int fromY, int toX, int toY);
+    bool judgeMoveToJiangjun(int fromX, int fromY, int toX, int toY, PieceColor color);
     bool judgePossibleToMove(PieceColor color);
+
+    void switchToMove(int to);
 
 private slots:
     void changePlayer();
@@ -129,14 +151,17 @@ public:
     ~Board() noexcept;
     void Start();
     void Rotate(bool ok);
-    PieceColor GetCurPlayerColor();
+    Player* GetCurPlayer();
     void SetMovable(bool allowMove);
     Piece* GetPiece(int x, int y);
     bool Move(int fromX, int fromY, int toX, int toY);
     QString ToFenString();
+    void ChangePaused();
+    void Undo();
+    void Redo();
 
 signals:
-    void boardInfoChanged(bool allowMove, bool allowUndo, bool allowRedo, bool isBlack);
+    void BoardInfoChanged(const BoardInfo &info);
 };
 
 #endif // BOARD_H

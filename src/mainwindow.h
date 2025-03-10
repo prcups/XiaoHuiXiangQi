@@ -72,7 +72,7 @@ class MainWindow : public QMainWindow
     QPointer <Board> board;
     BoardView boardView;
     QLabel status;
-    QAction *undo, *redo, *draw, *resign;
+    QAction *undo, *redo, *draw, *resign, *pause;
 private slots:
     void onStatusUpdated(const QString & str);
     void onDialogWanted(const QString & str);
@@ -80,8 +80,10 @@ private slots:
     void onAboutTriggered();
     void onAboutQtTriggered();
     void onShowLogTriggered();
-    void onBoardInfoChanged(bool allowMove, bool allowUndo, bool allowRedo, bool isBlack);
-
+    void onPauseTriggered();
+    void onUndoTriggered();
+    void onRedoTriggered();
+    void onBoardInfoChanged(const BoardInfo& info);
 public:
     /**
      * Default constructor

@@ -19,6 +19,7 @@ set(xiaohuixiangqi_SRC
   src/player.cpp
   src/gamestartdialog.cpp
   src/log.cpp
+  src/record.cpp
 )
 
 file(COPY

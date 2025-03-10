@@ -11,7 +11,7 @@
 // The Original Code is ______________________________________.
 // 
 // The Initial Developer of the Original Code is ________________________.
-// Portions created by ______________________ are Copyright (C) ______
+// // Portions created by ______________________ are Copyright (C) ______
 // _______________________. All Rights Reserved.
 // 
 // Contributor(s): ______________________________________.
@@ -79,14 +79,16 @@ MainWindow::MainWindow()
     gameMenu->addAction(tr("退出"), this, &MainWindow::close);
 
     auto operationMenu = menubar->addMenu(tr("操作"));
-    undo = operationMenu->addAction(tr("悔棋"));
+    undo = operationMenu->addAction(tr("上一步"), this, &MainWindow::onUndoTriggered);
     undo->setDisabled(true);
-    redo = operationMenu->addAction(tr("重下"));
+    redo = operationMenu->addAction(tr("下一步"), this, &MainWindow::onRedoTriggered);
     redo->setDisabled(true);
     draw = operationMenu->addAction(tr("求和"));
     draw->setDisabled(true);
     resign = operationMenu->addAction(tr("认输"));
     resign->setDisabled(true);
+    pause = operationMenu->addAction(tr("暂停"), this, &MainWindow::onPauseTriggered);
+    pause->setDisabled(true);
     operationMenu->addSeparator();
     operationMenu->addAction(tr("设置"));
 
@@ -98,8 +100,6 @@ MainWindow::MainWindow()
     this->setCentralWidget(&boardView);
 
     statusBar()->addWidget(&status);
-
-    status.setText(tr("就绪"));
 }
 
 MainWindow::~MainWindow()
@@ -136,8 +136,8 @@ void MainWindow::onCreateTriggered()
     boardView.setScene(newBoard);
     delete board;
     board = newBoard;
-    draw->setEnabled(true);
-    connect(board, &Board::boardInfoChanged, this, &MainWindow::onBoardInfoChanged);
+    connect(board, &Board::BoardInfoChanged, this, &MainWindow::onBoardInfoChanged);
+
     board->Start();
 }
 
@@ -156,29 +156,57 @@ void MainWindow::onShowLogTriggered()
     logWindow.setVisible(true);
 }
 
-void MainWindow::onBoardInfoChanged(bool allowMove, bool allowUndo, bool allowRedo, bool isBlack)
+void MainWindow::onPauseTriggered()
 {
-    if (allowMove)
+    board->ChangePaused();
+}
+
+void MainWindow::onUndoTriggered()
+{
+    board->Undo();
+}
+
+void MainWindow::onRedoTriggered()
+{
+    board->Redo();
+}
+
+void MainWindow::onBoardInfoChanged(const BoardInfo& info)
+{
+    draw->setDisabled(info.isEnd);
+    resign->setDisabled(info.isEnd);
+
+    undo->setEnabled(info.hasPrev);
+    redo->setEnabled(info.hasNext);
+
+    if (info.ifJiangjun)
+        bar() << (info.isBlack ? tr("红方") : tr("黑方")) + tr("将军");
+    if (info.isEnd)
     {
-        if (allowUndo) undo->setEnabled(true);
-        if (allowRedo) redo->setEnabled(true);
-        draw->setEnabled(true);
-        resign->setEnabled(true);
-        if (isBlack) {
-            boardView.rotate(180);
-            board->Rotate(true);
-        }
-        else {
-            boardView.resetTransform();
-            board->Rotate(false);
-        }
+        pause->setDisabled(true);
+        bar() << (info.isBlack ? tr("红方") : tr("黑方")) + tr("胜利");
+        boardView.resetTransform();
+        board->Rotate(false);
+        return;
+    }
+
+    pause->setEnabled(true);
+    if (info.isPaused)
+    {
+        bar() << tr("游戏已暂停");
+        pause->setText(tr("继续"));
+    }
+    else pause->setText(tr("暂停"));
+
+    if (info.isHuman && info.isBlack)
+    {
+        boardView.resetTransform();
+        boardView.rotate(180);
+        board->Rotate(true);
     }
     else
     {
-        undo->setDisabled(true);
-        redo->setDisabled(true);
-        draw->setDisabled(true);
-        resign->setDisabled(true);
+        boardView.resetTransform();
+        board->Rotate(false);
     }
 }
-

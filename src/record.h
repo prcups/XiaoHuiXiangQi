@@ -2,20 +2,20 @@
 // Version 1.1 (the "License"); you may not use this file except in
 // compliance with the License. You may obtain a copy of the License at
 // http://www.mozilla.org/MPL/
-//
+// 
 // Software distributed under the License is distributed on an "AS IS"
 // basis, WITHOUT WARRANTY OF ANY KIND, either express or implied. See the
 // License for the specific language governing rights and limitations
 // under the License.
-//
+// 
 // The Original Code is ______________________________________.
-//
+// 
 // The Initial Developer of the Original Code is ________________________.
 // Portions created by ______________________ are Copyright (C) ______
 // _______________________. All Rights Reserved.
-//
+// 
 // Contributor(s): ______________________________________.
-//
+// 
 // Alternatively, the contents of this file may be used under the terms
 // of the _____ license (the  "[___] License"), in which case the
 // provisions of [______] License are applicable instead of those
@@ -27,75 +27,24 @@
 // the provisions above, a recipient may use your version of this file
 // under either the MPL or the [___] License."
 
-#ifndef PLAYER_H
-#define PLAYER_H
+#ifndef RECORD_H
+#define RECORD_H
 
-#include <QObject>
-#include <QProcess>
 #include "piece.h"
-#include "log.h"
+#include "player.h"
 
-enum PlayerType
+struct Record
 {
-    Human, Computer
+    int fromX, fromY, toX, toY;
+    PieceColor dstColor;
+    PieceType dstType;
+    bool isHuman;
+    bool isEnd;
+    bool isBlack;
+    bool ifJiangjun;
+    bool ifEat;
+    bool operator == (const Record & x)const;
+    QString fenStr;
 };
 
-enum EngineStatus
-{
-    EngineCreated, EnginePrepared, EngineThinking
-};
-
-class Board;
-
-/**
- * @todo write docs
- */
-class Player : public QObject
-{
-    Q_OBJECT
-
-protected:
-    PieceColor playerColor;
-    Board *board;
-    PlayerType type;
-public:
-    virtual ~Player();
-
-    /**
-     * Default constructor
-     */
-    Player(Board *board, PieceColor color);
-    PieceColor GetColor();
-    PlayerType GetType();
-    virtual void Go();
-    virtual void Pause();
-    Piece *JiangPtr;
-};
-
-class Engine : public Player
-{
-    Q_OBJECT
-
-    QProcess *engineProcess;
-    EngineStatus status = EngineCreated;
-    bool deferGo = 0;
-
-private slots:
-    void handleOutput();
-    void handleShortMoveString(QString moveString);
-
-public:
-    /**
-     * Default constructor
-     */
-    Engine(Board *board, PieceColor color, QString engineName);
-
-    /**
-     * Destructor
-     */
-    ~Engine();
-    void Go() override;
-    void Pause() override;
-};
-
-#endif // PLAYER_H
+#endif // RECORD_H
