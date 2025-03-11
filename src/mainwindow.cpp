@@ -85,7 +85,7 @@ MainWindow::MainWindow()
     redo->setDisabled(true);
     draw = operationMenu->addAction(tr("求和"), this, &MainWindow::onDrawTriggered);
     draw->setDisabled(true);
-    resign = operationMenu->addAction(tr("认输"));
+    resign = operationMenu->addAction(tr("认输"), this, &MainWindow::onResignTriggered);
     resign->setDisabled(true);
     pause = operationMenu->addAction(tr("暂停"), this, &MainWindow::onPauseTriggered);
     pause->setDisabled(true);
@@ -177,15 +177,21 @@ void MainWindow::onDrawTriggered()
     board->Draw = true;
 }
 
+void MainWindow::onResignTriggered()
+{
+    board->Resign();
+}
+
 void MainWindow::onBoardInfoChanged(const BoardInfo& info)
 {
     undo->setEnabled(info.hasPrev);
     redo->setEnabled(info.hasNext);
 
-    draw->setEnabled(info.isHuman && info.endType == NotEnd
-                        && info.rivalIsHuman == false);
-    resign->setEnabled(info.isHuman && info.endType == NotEnd
-                        && info.rivalIsHuman == false);
+    auto canDrawAndResign = info.isHuman && info.endType == NotEnd
+                                && info.rivalIsHuman == false
+                                && !info.isPaused;
+    draw->setEnabled(canDrawAndResign);
+    resign->setEnabled(canDrawAndResign);
 
     if (info.ifJiangjun)
         bar() << (info.isBlack ? tr("红方") : tr("黑方")) + tr("将军");

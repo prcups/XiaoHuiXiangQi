@@ -1078,3 +1078,15 @@ void Board::Redo()
     switchToMove(moveNumber);
     Start();
 }
+
+void Board::Resign()
+{
+    status = BoardBanned;
+    if (focusFrame.scene() == this) removeItem(&focusFrame);
+    auto whoWin = (curPlayerColor == Red ? BlackWin : RedWin);
+    if (moveNumber == 0) origEndType = whoWin;
+    else recordList[moveNumber - 1].endType = whoWin;
+    lastNumber = moveNumber;
+    dialog() << (curPlayerColor == Red ? tr("红方") : tr("黑方")) + tr("认输");
+    Start();
+}

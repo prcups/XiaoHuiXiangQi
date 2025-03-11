@@ -146,9 +146,6 @@ private slots:
     void changePlayer();
 
 public:
-    /**
-     * Default constructor
-     */
     Board(PlayerType playerType[]);
     ~Board() noexcept;
     void Start();
@@ -161,6 +158,8 @@ public:
     void ChangePaused();
     void Undo();
     void Redo();
+    void Resign();
+
     bool Draw;
 
 signals:

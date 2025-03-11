@@ -84,6 +84,7 @@ private slots:
     void onUndoTriggered();
     void onRedoTriggered();
     void onDrawTriggered();
+    void onResignTriggered();
     void onBoardInfoChanged(const BoardInfo& info);
 public:
     /**
