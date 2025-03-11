@@ -126,23 +126,25 @@ Board::Board(PlayerType playerType[])
     origFenStr = "rnbakabnr/9/1c5c1/p1p1p1p1p/9/9/P1P1P1P1P/1C5C1/9/RNBAKABNR";
     initPieces(origFenStr);
     curPlayerColor = Red;
-    moveNumber = origJiangJun = origEnd = isPaused = 0;
+    moveNumber = origJiangJun = isPaused = 0;
+    origEndType = NotEnd;
 }
 
 void Board::Start()
 {
-    auto isEnd = (moveNumber == 0 ? false : recordList[moveNumber - 1].isEnd);
+    auto endType = (moveNumber == 0 ? origEndType : recordList[moveNumber - 1].endType);
     emit BoardInfoChanged(BoardInfo{
-        .isEnd = isEnd,
+        .endType = endType,
         .isBlack = (curPlayerColor == Black),
         .isHuman = (GetCurPlayer()->GetType() == Human),
         .ifJiangjun = (moveNumber == 0 ? false : recordList[moveNumber - 1].ifJiangjun),
         .hasPrev = (moveNumber != 0),
         .hasNext = (moveNumber != lastNumber),
-        .isPaused = isPaused
+        .isPaused = isPaused,
+        .rivalIsHuman = (player[curPlayerColor ^ 1]->GetType() == Human)
     });
 
-    if (!isPaused && !isEnd)
+    if (!isPaused && !endType)
         player[curPlayerColor]->Go();
 }
 
@@ -442,6 +444,7 @@ bool Board::Move(int fromX, int fromY, int toX, int toY)
         .fromY = fromY,
         .toX = toX,
         .toY = toY,
+        .endType = NotEnd,
         .isBlack = (curPlayerColor == Black)
     };
 
@@ -477,7 +480,8 @@ bool Board::Move(int fromX, int fromY, int toX, int toY)
     animation->start();
 
     record.ifJiangjun = judgeJiangjun(PieceColor(curPlayerColor ^ 1));
-    record.isEnd = !judgePossibleToMove(PieceColor(curPlayerColor ^ 1));
+    if (!judgePossibleToMove(PieceColor(curPlayerColor ^ 1)))
+        record.endType = (curPlayerColor == Red ? RedWin : BlackWin);
     record.fenStr = toShortFenStr();
 
     if (moveNumber >= recordList.size())
@@ -485,7 +489,7 @@ bool Board::Move(int fromX, int fromY, int toX, int toY)
     else recordList[moveNumber] = record;
     lastNumber = ++moveNumber;
 
-    if (record.isEnd)
+    if (record.endType)
         dialog() << (curPlayerColor == Red ? tr("红方") : tr("黑方")) + tr("胜利");
 
     QTimer::singleShot(200, this, &Board::changePlayer);
@@ -1015,6 +1019,7 @@ Piece * Board::GetPiece(int x, int y)
 
 void Board::switchToMove(int to)
 {
+    Draw = 0;
     for (int i = 0; i <= 9; ++i)
         for (int j = 0; j <= 8; ++j)
         {

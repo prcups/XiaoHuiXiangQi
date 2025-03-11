@@ -83,7 +83,7 @@ MainWindow::MainWindow()
     undo->setDisabled(true);
     redo = operationMenu->addAction(tr("下一步"), this, &MainWindow::onRedoTriggered);
     redo->setDisabled(true);
-    draw = operationMenu->addAction(tr("求和"));
+    draw = operationMenu->addAction(tr("求和"), this, &MainWindow::onDrawTriggered);
     draw->setDisabled(true);
     resign = operationMenu->addAction(tr("认输"));
     resign->setDisabled(true);
@@ -171,20 +171,30 @@ void MainWindow::onRedoTriggered()
     board->Redo();
 }
 
+void MainWindow::onDrawTriggered()
+{
+    bar() << tr("请走一着棋，若对方不同意求和会继续行棋，否则对局以和结束");
+    board->Draw = true;
+}
+
 void MainWindow::onBoardInfoChanged(const BoardInfo& info)
 {
-    draw->setDisabled(info.isEnd);
-    resign->setDisabled(info.isEnd);
-
     undo->setEnabled(info.hasPrev);
     redo->setEnabled(info.hasNext);
 
+    draw->setEnabled(info.isHuman && info.endType == NotEnd
+                        && info.rivalIsHuman == false);
+    resign->setEnabled(info.isHuman && info.endType == NotEnd
+                        && info.rivalIsHuman == false);
+
     if (info.ifJiangjun)
         bar() << (info.isBlack ? tr("红方") : tr("黑方")) + tr("将军");
-    if (info.isEnd)
+    if (info.endType)
     {
         pause->setDisabled(true);
-        bar() << (info.isBlack ? tr("红方") : tr("黑方")) + tr("胜利");
+        if (info.endType == BlackWin) bar() << tr("黑方胜利");
+        else if (info.endType == Draw) bar() << tr("和棋");
+        else bar() << tr("红方胜利");
         boardView.resetTransform();
         board->Rotate(false);
         return;

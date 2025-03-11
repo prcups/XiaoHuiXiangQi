@@ -75,7 +75,8 @@ Engine::~Engine()
 
 void Engine::Go()
 {
-    if (status != EnginePrepared){
+    if (status != EnginePrepared)
+    {
         deferGo = 1;
         return;
     }
@@ -83,8 +84,12 @@ void Engine::Go()
     status = EngineThinking;
     QString output = "position fen ";
     output.append(board->ToFenString());
-    output.append("\ngo depth 5\n");
+    output.append("\ngo depth ");
+    output.append(QString::number(depth));
+    if (board->Draw) output.append(" draw");
+    output.append("\n");
     engineProcess->write(output.toLocal8Bit());
+    board->Draw = 0;
 }
 
 void Engine::Pause()

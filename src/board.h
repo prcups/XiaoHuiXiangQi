@@ -51,13 +51,14 @@ class Player;
 
 struct BoardInfo
 {
-    bool isEnd;
+    int endType;
     bool isBlack;
     bool isHuman;
     bool ifJiangjun;
     bool hasPrev;
     bool hasNext;
     bool isPaused;
+    bool rivalIsHuman;
 };
 Q_DECLARE_METATYPE(BoardInfo)
 
@@ -102,7 +103,8 @@ class Board : public QGraphicsScene
     BoardStatus status = BoardBanned;
     Piece *selectedPiece;
     int moveNumber, lastNumber;
-    bool origJiangJun, origEnd, isPaused;
+    EndType origEndType;
+    bool origJiangJun, isPaused;
     Frame focusFrame, oldFrame, newFrame;
     QString origFenStr;
     QList <Record> recordList;
@@ -159,6 +161,7 @@ public:
     void ChangePaused();
     void Undo();
     void Redo();
+    bool Draw;
 
 signals:
     void BoardInfoChanged(const BoardInfo &info);

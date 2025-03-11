@@ -33,13 +33,18 @@
 #include "piece.h"
 #include "player.h"
 
+enum EndType
+{
+    NotEnd = 0, RedWin, Draw, BlackWin
+};
+
 struct Record
 {
     int fromX, fromY, toX, toY;
     PieceColor dstColor;
     PieceType dstType;
     bool isHuman;
-    bool isEnd;
+    EndType endType;
     bool isBlack;
     bool ifJiangjun;
     bool ifEat;
