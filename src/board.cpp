@@ -113,16 +113,12 @@ Frame::Frame(): QGraphicsRectItem(0, 0, 90, 90)
     setZValue(-1);
 }
 
-Board::Board(PlayerType playerType[])
+Board::Board(Player* red, Player* black)
 {
+    player[0] = red;
+    player[1] = black;
     background = new BoardBackground;
     addItem(background);
-    for (int i = 0; i < 2; ++i)
-    {
-        if (playerType[i] == Human)
-            player[i] = new Player(this, PieceColor(i));
-        else player[i] = new Engine(this, PieceColor(i), "./pikafish");
-    }
     origFenStr = "rnbakabnr/9/1c5c1/p1p1p1p1p/9/9/P1P1P1P1P/1C5C1/9/RNBAKABNR";
     initPieces(origFenStr);
     curPlayerColor = Red;
@@ -154,8 +150,6 @@ Board::~Board() noexcept
         for (int j = 0; j < 9; ++j)
             delete content[i][j];
     delete background;
-    delete player[0];
-    delete player[1];
 }
 
 bool Board::initPieces(QStringView fenMain)

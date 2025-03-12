@@ -58,6 +58,7 @@ void LogWindow::clear()
 void LogWindow::onLogReceived(const QString& str)
 {
     edit->insertPlainText(str);
+    edit->ensureCursorVisible();
 }
 
 MainWindow::MainWindow()
@@ -104,6 +105,8 @@ MainWindow::MainWindow()
 
 MainWindow::~MainWindow()
 {
+    delete player[0];
+    delete player[1];
     delete board;
 }
 
@@ -119,19 +122,34 @@ void MainWindow::onStatusUpdated(const QString& str)
 
 void MainWindow::onCreateTriggered()
 {
-    PlayerType type[2];
     GameStartDialog gameStartDialog;
     if (!gameStartDialog.exec()) return;
     for (int i = 0; i < 2; ++i)
     {
         if (gameStartDialog.GetPlayerSelection(PieceColor(i)) == 0)
-            type[i] = Human;
-        else type[i] = Computer;
+             player[i] = new Player(PieceColor(i));
+        else {
+            int depth;
+            switch(gameStartDialog.GetPlayerDiffSelection(PieceColor(i)))
+            {
+                case 0:
+                    depth = 10;
+                    break;
+                case 1:
+                    depth = 20;
+                    break;
+                case 2:
+                    depth = gameStartDialog.GetPlayerDepthSelection(PieceColor(i));
+            }
+            player[i] = new Engine(PieceColor(i), "./pikafish", depth);
+        }
     }
 
     logWindow.clear();
 
-    auto newBoard = new Board(type);
+    auto newBoard = new Board(player[0], player[1]);
+    player[0]->SetBoard(newBoard);
+    player[1]->SetBoard(newBoard);
 
     boardView.setScene(newBoard);
     delete board;

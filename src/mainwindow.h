@@ -70,6 +70,7 @@ class MainWindow : public QMainWindow
 
     LogWindow logWindow;
     QPointer <Board> board;
+    QPointer <Player> player[2];
     BoardView boardView;
     QLabel status;
     QAction *undo, *redo, *draw, *resign, *pause;

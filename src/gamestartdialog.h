@@ -32,6 +32,8 @@
 
 #include <QDialog>
 #include <QScopedPointer>
+#include <QValidator>
+#include <QPushButton>
 #include "piece.h"
 
 namespace Ui
@@ -39,9 +41,6 @@ namespace Ui
 class GameStartDialog;
 }
 
-/**
- * @todo write docs
- */
 class GameStartDialog : public QDialog
 {
     Q_OBJECT
@@ -50,9 +49,19 @@ public:
     GameStartDialog();
     ~GameStartDialog();
     int GetPlayerSelection(PieceColor color);
+    int GetPlayerDiffSelection(PieceColor color);
+    int GetPlayerDepthSelection(PieceColor color);
 
 private:
     QScopedPointer<Ui::GameStartDialog> m_ui;
+    QScopedPointer<QIntValidator> v;
+
+public slots:
+    void handleRedPlayerChanged(int index);
+    void handleBlackPlayerChanged(int index);
+    void handleRedDiffChanged(int index);
+    void handleBlackDiffChanged(int index);
+    void handleDepthChanged();
 };
 
 #endif // GAMESTARTDIALOG_H

@@ -56,7 +56,7 @@ class Player : public QObject
 
 protected:
     PieceColor playerColor;
-    Board *board;
+    Board *board = nullptr;
     PlayerType type;
 public:
     virtual ~Player();
@@ -64,7 +64,8 @@ public:
     /**
      * Default constructor
      */
-    Player(Board *board, PieceColor color);
+    Player(PieceColor color);
+    void SetBoard(Board *newBoard);
     PieceColor GetColor();
     PlayerType GetType();
     virtual void Go();
@@ -79,21 +80,14 @@ class Engine : public Player
     QProcess *engineProcess;
     EngineStatus status = EngineCreated;
     bool deferGo = 0;
-    int depth = 5;
+    int depth;
 
 private slots:
     void handleOutput();
     void handleShortMoveString(QString moveString);
 
 public:
-    /**
-     * Default constructor
-     */
-    Engine(Board *board, PieceColor color, QString engineName);
-
-    /**
-     * Destructor
-     */
+    Engine(PieceColor color, QString enginePath, int depth);
     ~Engine();
     void Go() override;
     void Pause() override;

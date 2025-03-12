@@ -146,7 +146,7 @@ private slots:
     void changePlayer();
 
 public:
-    Board(PlayerType playerType[]);
+    Board(Player *red, Player *black);
     ~Board() noexcept;
     void Start();
     void Rotate(bool ok);

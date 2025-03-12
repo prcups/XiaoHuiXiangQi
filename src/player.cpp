@@ -32,11 +32,12 @@
 
 Player::~Player() = default;
 
-Player::Player(Board *board, PieceColor color)
-:playerColor(color), board(board), type(Human) {}
+Player::Player(PieceColor color)
+:playerColor(color), type(Human) {}
 
 void Player::Go()
 {
+    if (!board) return;
     bar() << tr("就绪");
     board->SetMovable(true);
 }
@@ -56,13 +57,18 @@ void Player::Pause()
     board->SetMovable(false);
 }
 
-Engine::Engine(Board *board, PieceColor color, QString engineName)
-:Player(board, color)
+void Player::SetBoard(Board* newBoard)
+{
+    board = newBoard;
+}
+
+Engine::Engine(PieceColor color, QString enginePath, int depth)
+:Player(color), depth(depth)
 {
     type = Computer;
     engineProcess = new QProcess();
     connect(engineProcess, &QProcess::readyRead, this, &Engine::handleOutput);
-    engineProcess->start(engineName, QStringList());
+    engineProcess->start(enginePath, QStringList());
     engineProcess->write("uci\n");
 }
 
@@ -75,6 +81,7 @@ Engine::~Engine()
 
 void Engine::Go()
 {
+    if (!board) return;
     if (status != EnginePrepared)
     {
         deferGo = 1;
