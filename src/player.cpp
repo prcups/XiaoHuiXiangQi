@@ -118,10 +118,9 @@ void Engine::handleOutput()
             {
                 output = engineProcess->readLine();
                 if (output.isEmpty()) break;
-                log() << (this->playerColor == Red ? QString("Red: ") : QString("Black: ")) << output;
                 if (output == "uciok\n")
                 {
-                    log() << "\n";
+                    log() << (this->playerColor == Red ? QString("Red: ") : QString("Black: ")) << output;
                     status = EnginePrepared;
                     if (deferGo)
                     {
@@ -134,17 +133,17 @@ void Engine::handleOutput()
             break;
         case EnginePrepared:
             output = engineProcess->readAll();
-            log() << (this->playerColor == Red ? QString("Red: ") : QString("Black: ")) << output;
+            log() << (this->playerColor == Red ? QString("Red: ") : QString("Black: "));
             break;
         case EngineThinking:
             while (1)
             {
                 output = engineProcess->readLine();
                 if (output.isEmpty()) break;
-                log() << (this->playerColor == Red ? QString("Red: ") : QString("Black: ")) << output;
                 if (output.contains("bestmove"))
                 {
-                    log() << "\n";
+                    log() << (this->playerColor == Red ? QString("Red: ") : QString("Black: "))
+                    << output;
                     handleShortMoveString(output.remove(0, 9).chopped(1));
                     status = EnginePrepared;
                     break;
@@ -160,6 +159,7 @@ void Engine::handleShortMoveString(QString moveString)
     int fromY = moveString[0].toLatin1() - 'a';
     int toX = moveString[3].toLatin1() - '0';
     int toY = moveString[2].toLatin1() - 'a';
+    qDebug() << fromX << fromY << toX << toY;
     auto fromPiece = board->GetPiece(fromX, fromY);
     auto toPiece = board->GetPiece(toX, toY);
     if (fromPiece != nullptr && toPiece != nullptr && !fromPiece->Invalid

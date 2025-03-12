@@ -431,7 +431,8 @@ void Board::handlePutEvent(QPointF & pos)
 
 bool Board::Move(int fromX, int fromY, int toX, int toY)
 {
-    if (!judgeMove(fromX, fromY, toX, toY)) return false;
+    if (!judgeMove(fromX, fromY, toX, toY))
+        return false;
 
     Record record = {
         .fromX = fromX,
@@ -987,7 +988,7 @@ bool Board::judgeJiangjun(PieceColor color)
     {
         if (color == Red) dst = content[x + i.first][y + i.second];
         else dst = content[x - i.first][y - i.second];
-        if (dst->GetType() == Zu && dst->GetColor() != color) return true;
+        if (!dst->Invalid && dst->GetType() == Zu && dst->GetColor() != color) return true;
     }
 
     for (auto & i : maOffset)
@@ -995,7 +996,7 @@ bool Board::judgeJiangjun(PieceColor color)
         if (x + i.first < 0) continue;
         if (x + i.first > 9) continue;
         dst = content[x + i.first][y + i.second];
-        if (dst->GetType() == Ma && dst->GetColor() != color
+        if (!dst->Invalid && dst->GetType() == Ma && dst->GetColor() != color
                 && content[dst->X - i.first / 2][dst->Y - i.second / 2]->Invalid
         ) return true;
     }
