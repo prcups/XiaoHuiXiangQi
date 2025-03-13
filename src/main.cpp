@@ -4,6 +4,8 @@
 int main(int argc, char *argv[])
 {
     qRegisterMetaType<BoardInfo>("BoardInfo");
+    QCoreApplication::setOrganizationName("Signal Lab");
+    QCoreApplication::setApplicationName("XiaoHuiXiangQi");
     QApplication app(argc, argv);
     MainWindow w;
     w.show();

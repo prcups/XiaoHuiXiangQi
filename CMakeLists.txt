@@ -20,6 +20,7 @@ set(xiaohuixiangqi_SRC
   src/gamestartdialog.cpp
   src/log.cpp
   src/record.cpp
+  src/settingsdialog.cpp
 )
 
 file(COPY

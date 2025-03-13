@@ -27,79 +27,37 @@
 // the provisions above, a recipient may use your version of this file
 // under either the MPL or the [___] License."
 
-#ifndef MAINWINDOW_H
-#define MAINWINDOW_H
+#ifndef SETTINGSDIALOG_H
+#define SETTINGSDIALOG_H
 
-#include <QMainWindow>
-#include <QMenuBar>
-#include <QGraphicsView>
+#include <QDialog>
 #include <QPointer>
-#include <QMessageBox>
-#include <QDockWidget>
-#include <QTextEdit>
-#include <QStatusBar>
-#include <QLabel>
-#include <QTransform>
+#include <QAbstractListModel>
+#include <QSettings>
+#include <QJsonArray>
+#include <QJsonObject>
+#include <QToolButton>
+#include <QFileDialog>
 
-#include "board.h"
-#include "gamestartdialog.h"
-#include "log.h"
-#include "settingsdialog.h"
-
-class BoardView : public QGraphicsView
+namespace Ui
 {
-    void resizeEvent ( QResizeEvent * event ) override;
-public:
-    BoardView();
-};
+class SettingsDialog;
+}
 
-class LogWindow: public QDockWidget
+class SettingsDialog : public QDialog
 {
     Q_OBJECT
+    QScopedPointer <Ui::SettingsDialog> m_ui;
+    QJsonArray engineList;
 
-    QScopedPointer <QTextEdit> edit;
 public:
-    LogWindow();
-    void clear();
+    SettingsDialog();
+    ~SettingsDialog();
+
 public slots:
-    void onLogReceived(const QString & str);
+    void onChooseTriggered();
+    void onAddTriggered();
+    void onRemoveTriggered();
 };
 
-class MainWindow : public QMainWindow
-{
-    Q_OBJECT
-
-    LogWindow logWindow;
-    QPointer <Board> board;
-    QPointer <Player> player[2];
-    BoardView boardView;
-    QLabel status;
-    QAction *undo, *redo, *draw, *resign, *pause;
-private slots:
-    void onStatusUpdated(const QString & str);
-    void onDialogWanted(const QString & str);
-    void onCreateTriggered();
-    void onAboutTriggered();
-    void onAboutQtTriggered();
-    void onShowLogTriggered();
-    void onPauseTriggered();
-    void onUndoTriggered();
-    void onRedoTriggered();
-    void onDrawTriggered();
-    void onResignTriggered();
-    void onSettingsTriggered();
-    void onBoardInfoChanged(const BoardInfo& info);
-public:
-    /**
-     * Default constructor
-     */
-    MainWindow();
-
-    /**
-     * Destructor
-     */
-    ~MainWindow();
-
-};
-
-#endif // MAINWINDOW_H
+#endif // SETTINGSDIALOG_H

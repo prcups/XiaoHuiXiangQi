@@ -27,79 +27,44 @@
 // the provisions above, a recipient may use your version of this file
 // under either the MPL or the [___] License."
 
-#ifndef MAINWINDOW_H
-#define MAINWINDOW_H
-
-#include <QMainWindow>
-#include <QMenuBar>
-#include <QGraphicsView>
-#include <QPointer>
-#include <QMessageBox>
-#include <QDockWidget>
-#include <QTextEdit>
-#include <QStatusBar>
-#include <QLabel>
-#include <QTransform>
-
-#include "board.h"
-#include "gamestartdialog.h"
-#include "log.h"
 #include "settingsdialog.h"
+#include "ui_settingsdialog.h"
 
-class BoardView : public QGraphicsView
+SettingsDialog::SettingsDialog()
+:m_ui(new Ui::SettingsDialog)
 {
-    void resizeEvent ( QResizeEvent * event ) override;
-public:
-    BoardView();
-};
+    m_ui->setupUi(this);
+    QSettings settings;
+    engineList = settings.value("list").toJsonArray();
+    for (auto i : engineList)
+    {
+        auto engine = i.toObject();
+        m_ui->engineListWidget->addItem(engine["path"].toString()
+            + "(" + engine["protocol"].toString() + ")");
+    }
+    m_ui->rotate->setCheckState(
+        settings.value("rotate", true).toBool() ? Qt::Checked : Qt::Unchecked);
+    m_ui->animation->setCheckState(
+        settings.value("animation", true).toBool() ? Qt::Checked : Qt::Unchecked);
+    connect(m_ui->chooseFile, &QToolButton::clicked, this, &SettingsDialog::onChooseTriggered);
+    connect(m_ui->addEngine, &QToolButton::clicked, this, &SettingsDialog::onAddTriggered);
+    connect(m_ui->deleteEngine, &QToolButton::clicked, this, &SettingsDialog::onRemoveTriggered);
+}
 
-class LogWindow: public QDockWidget
+SettingsDialog::~SettingsDialog() {}
+
+void SettingsDialog::onAddTriggered()
 {
-    Q_OBJECT
 
-    QScopedPointer <QTextEdit> edit;
-public:
-    LogWindow();
-    void clear();
-public slots:
-    void onLogReceived(const QString & str);
-};
+}
 
-class MainWindow : public QMainWindow
+void SettingsDialog::onChooseTriggered()
 {
-    Q_OBJECT
+    m_ui->enginePath->setText(
+        QFileDialog::getOpenFileName(this, tr("选择引擎程序")));
+}
 
-    LogWindow logWindow;
-    QPointer <Board> board;
-    QPointer <Player> player[2];
-    BoardView boardView;
-    QLabel status;
-    QAction *undo, *redo, *draw, *resign, *pause;
-private slots:
-    void onStatusUpdated(const QString & str);
-    void onDialogWanted(const QString & str);
-    void onCreateTriggered();
-    void onAboutTriggered();
-    void onAboutQtTriggered();
-    void onShowLogTriggered();
-    void onPauseTriggered();
-    void onUndoTriggered();
-    void onRedoTriggered();
-    void onDrawTriggered();
-    void onResignTriggered();
-    void onSettingsTriggered();
-    void onBoardInfoChanged(const BoardInfo& info);
-public:
-    /**
-     * Default constructor
-     */
-    MainWindow();
+void SettingsDialog::onRemoveTriggered()
+{
 
-    /**
-     * Destructor
-     */
-    ~MainWindow();
-
-};
-
-#endif // MAINWINDOW_H
+}

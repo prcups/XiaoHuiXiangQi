@@ -91,7 +91,7 @@ MainWindow::MainWindow()
     pause = operationMenu->addAction(tr("暂停"), this, &MainWindow::onPauseTriggered);
     pause->setDisabled(true);
     operationMenu->addSeparator();
-    operationMenu->addAction(tr("设置"));
+    operationMenu->addAction(tr("设置"), this, &MainWindow::onSettingsTriggered);
 
     auto aboutMenu = menubar->addMenu(tr("关于"));
     aboutMenu->addAction(tr("关于"), this, &MainWindow::onAboutTriggered);
@@ -205,6 +205,12 @@ void MainWindow::onDrawTriggered()
 void MainWindow::onResignTriggered()
 {
     board->Resign();
+}
+
+void MainWindow::onSettingsTriggered()
+{
+    SettingsDialog settingsDialog;
+    settingsDialog.exec();
 }
 
 void MainWindow::onBoardInfoChanged(const BoardInfo& info)
