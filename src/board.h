@@ -41,6 +41,7 @@
 #include <QPair>
 #include <QList>
 #include <QMessageBox>
+#include <QPointer>
 #include "piece.h"
 #include "player.h"
 #include "log.h"
@@ -96,18 +97,20 @@ enum BoardStatus
 class Board : public QGraphicsScene
 {
     Q_OBJECT
-    Piece *content[10][9];
+    QPointer <Piece> content[10][9];
     BoardBackground* background;
     Player *player[2];
     int curPlayerColor;
     BoardStatus status = BoardBanned;
     Piece *selectedPiece;
-    int moveNumber, lastNumber;
+    int moveNumber, lastNumber, lastEatNumber;
     EndType origEndType;
+    PieceColor origColor;
     bool origJiangJun, isPaused;
     Frame focusFrame, oldFrame, newFrame;
-    QString origFenStr;
+    QString origFenStr, fenCache;
     QList <Record> recordList;
+    QHash <Record, int> recordMap;
 
     static const QVector <QPair<int, int>> jiangOffset;
     static const QVector <QPair<int, int>> maOffset;
@@ -120,6 +123,8 @@ class Board : public QGraphicsScene
     float xToPosY(int yPos);
     QString toShortFenStr();
     void doPause();
+    Record getRecord(int fromX, int fromY, int toX, int toY);
+    void switchToMove(int to);
 
     void handlePutEvent(QPointF & pos);
     void mousePressEvent ( QGraphicsSceneMouseEvent * event ) override;
@@ -139,8 +144,6 @@ class Board : public QGraphicsScene
     bool judgeJiangjun(PieceColor color);
     bool judgeMoveToJiangjun(int fromX, int fromY, int toX, int toY, PieceColor color);
     bool judgePossibleToMove(PieceColor color);
-
-    void switchToMove(int to);
 
 private slots:
     void changePlayer();

@@ -120,9 +120,11 @@ Board::Board(Player* red, Player* black)
     background = new BoardBackground;
     addItem(background);
     origFenStr = "rnbakabnr/9/1c5c1/p1p1p1p1p/9/9/P1P1P1P1P/1C5C1/9/RNBAKABNR";
+    origColor = Red;
     initPieces(origFenStr);
     curPlayerColor = Red;
-    moveNumber = origJiangJun = isPaused = 0;
+    moveNumber = lastNumber = lastEatNumber = 0;
+    origJiangJun = isPaused = 0;
     origEndType = NotEnd;
 }
 
@@ -319,12 +321,30 @@ QString Board::toShortFenStr()
 
 QString Board::ToFenString()
 {
-    QString fen = toShortFenStr();
-    if (curPlayerColor == Black) fen.append(" b");
-    else fen.append(" w");
-    fen.append(" - - 0 ");
-    fen.append(QString::number(moveNumber));
-    return fen;
+    if (fenCache.isEmpty())
+    {
+        fenCache = (lastEatNumber == 0 ? origFenStr : recordList[lastEatNumber - 1].fenStr);
+        bool isBlack = (lastEatNumber == 0 ? origColor == Black : !recordList[lastEatNumber - 1].isBlack);
+        if (isBlack) fenCache.append(" b");
+        else fenCache.append(" w");
+        fenCache.append(" - - 0 1");
+        if (lastEatNumber != moveNumber)
+            fenCache.append(" moves");
+        for (int i = lastEatNumber; i < moveNumber; ++i)
+        {
+            fenCache.append(" ");
+            fenCache.append(recordList[i].ToMoveString());
+        }
+    }
+    else
+    {
+        if (moveNumber - lastEatNumber == 1)
+            fenCache.append(" moves");
+        fenCache.append(" ");
+        fenCache.append(recordList[moveNumber - 1].ToMoveString());
+    }
+
+    return fenCache;
 }
 
 float Board::xToPosY ( int yPos )
@@ -429,18 +449,17 @@ void Board::handlePutEvent(QPointF & pos)
     }
 }
 
-bool Board::Move(int fromX, int fromY, int toX, int toY)
+Record Board::getRecord(int fromX, int fromY, int toX, int toY)
 {
-    if (!judgeMove(fromX, fromY, toX, toY))
-        return false;
-
     Record record = {
         .fromX = fromX,
         .fromY = fromY,
         .toX = toX,
         .toY = toY,
         .endType = NotEnd,
-        .isBlack = (curPlayerColor == Black)
+        .isBlack = (curPlayerColor == Black),
+        .ifEat = false,
+        .lastEat = lastEatNumber
     };
 
     if (!content[toX][toY]->Invalid)
@@ -448,7 +467,43 @@ bool Board::Move(int fromX, int fromY, int toX, int toY)
         record.ifEat = true;
         record.dstType = content[toX][toY]->GetType();
         record.dstColor = content[toX][toY]->GetColor();
+        record.lastEat = moveNumber + 1;
     }
+
+    auto tempPiece = content[toX][toY];
+    content[toX][toY] = content[fromX][fromY];
+    content[toX][toY]->X = toX;
+    content[toX][toY]->Y = toY;
+    content[fromX][fromY] = new Piece(fromX, fromY);
+
+    record.ifJiangjun =  judgeJiangjun(PieceColor(curPlayerColor ^ 1));
+    if (!judgePossibleToMove(PieceColor(curPlayerColor ^ 1)))
+        record.endType = (curPlayerColor == Red ? RedWin : BlackWin);
+    record.fenStr = toShortFenStr();
+
+    delete content[fromX][fromY];
+    content[fromX][fromY] = content[toX][toY];
+    content[fromX][fromY]->X = fromX;
+    content[fromX][fromY]->Y = fromY;
+    content[toX][toY] = tempPiece;
+
+    return record;
+}
+
+bool Board::Move(int fromX, int fromY, int toX, int toY)
+{
+    if (!judgeMove(fromX, fromY, toX, toY))
+        return false;
+
+    Record record = getRecord(fromX, fromY, toX, toY);
+
+    int & c = recordMap[record];
+    if (c == 2)
+    {
+        bar() << tr("暂不允许长打");
+        return false;
+    }
+    ++c;
 
     oldFrame.setPos(yToPosX(fromY), xToPosY(fromX));
         if (oldFrame.scene() != this)
@@ -474,10 +529,8 @@ bool Board::Move(int fromX, int fromY, int toX, int toY)
     animation->setEndValue(QPointF(yToPosX(toY), xToPosY(toX)));
     animation->start();
 
-    record.ifJiangjun = judgeJiangjun(PieceColor(curPlayerColor ^ 1));
-    if (!judgePossibleToMove(PieceColor(curPlayerColor ^ 1)))
-        record.endType = (curPlayerColor == Red ? RedWin : BlackWin);
-    record.fenStr = toShortFenStr();
+    lastEatNumber = record.lastEat;
+    if (record.ifEat) fenCache.clear();
 
     if (moveNumber >= recordList.size())
         recordList.append(record);
@@ -845,7 +898,6 @@ bool Board::judgeZu(int fromX, int fromY, int toX, int toY)
         if (offset == QPair<int, int>{1, 0}) return true;
     }
     else if (zuOffset.contains(offset)) return true;
-
     return false;
 }
 

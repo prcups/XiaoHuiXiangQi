@@ -48,8 +48,13 @@ struct Record
     bool isBlack;
     bool ifJiangjun;
     bool ifEat;
-    bool operator == (const Record & x)const;
+    int lastEat;
     QString fenStr;
+
+    bool operator == (const Record & x)const;
+    QString ToMoveString();
 };
+
+uint qHash(const Record & key);
 
 #endif // RECORD_H

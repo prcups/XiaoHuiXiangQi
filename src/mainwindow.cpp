@@ -161,7 +161,7 @@ void MainWindow::onCreateTriggered()
 
 void MainWindow::onAboutTriggered()
 {
-    QMessageBox::about(this, tr("关于"), tr("小卉象棋 0.1\n一个简单的象棋界面"));
+    QMessageBox::about(this, tr("关于"), tr("小卉象棋 \n一个简单的象棋界面"));
 }
 
 void MainWindow::onAboutQtTriggered()
