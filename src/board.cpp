@@ -335,13 +335,17 @@ QString Board::ToFenString()
             fenCache.append(" ");
             fenCache.append(recordList[i].ToMoveString());
         }
+        cacheNumber = moveNumber;
     }
     else
     {
-        if (moveNumber - lastEatNumber == 1)
+        if (cacheNumber == lastEatNumber)
             fenCache.append(" moves");
-        fenCache.append(" ");
-        fenCache.append(recordList[moveNumber - 1].ToMoveString());
+        for (;cacheNumber < moveNumber; ++cacheNumber)
+        {
+            fenCache.append(" ");
+            fenCache.append(recordList[cacheNumber].ToMoveString());
+        }
     }
 
     return fenCache;

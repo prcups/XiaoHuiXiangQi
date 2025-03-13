@@ -151,10 +151,17 @@ void MainWindow::onCreateTriggered()
     player[0]->SetBoard(newBoard);
     player[1]->SetBoard(newBoard);
 
+
     boardView.setScene(newBoard);
     delete board;
     board = newBoard;
     connect(board, &Board::BoardInfoChanged, this, &MainWindow::onBoardInfoChanged);
+
+    if (player[0]->GetType() == Computer && player[1]->GetType() == Human)
+    {
+        boardView.rotate(180);
+        board->Rotate(true);
+    }
 
     board->Start();
 }
@@ -232,15 +239,18 @@ void MainWindow::onBoardInfoChanged(const BoardInfo& info)
     }
     else pause->setText(tr("暂停"));
 
-    if (info.isHuman && info.isBlack)
+    if (info.isHuman)
     {
-        boardView.resetTransform();
-        boardView.rotate(180);
-        board->Rotate(true);
-    }
-    else
-    {
-        boardView.resetTransform();
-        board->Rotate(false);
+        if (info.isBlack)
+        {
+            boardView.resetTransform();
+            boardView.rotate(180);
+            board->Rotate(true);
+        }
+        else
+        {
+            boardView.resetTransform();
+            board->Rotate(false);
+        }
     }
 }

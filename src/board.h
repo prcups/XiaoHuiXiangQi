@@ -103,7 +103,7 @@ class Board : public QGraphicsScene
     int curPlayerColor;
     BoardStatus status = BoardBanned;
     Piece *selectedPiece;
-    int moveNumber, lastNumber, lastEatNumber;
+    int moveNumber, lastNumber, lastEatNumber, cacheNumber;
     EndType origEndType;
     PieceColor origColor;
     bool origJiangJun, isPaused;
