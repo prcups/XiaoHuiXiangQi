@@ -33,7 +33,7 @@
 Player::~Player() = default;
 
 Player::Player(PieceColor color)
-:playerColor(color), type(Human) {}
+:playerColor(color), type(Human){}
 
 void Player::Go()
 {
@@ -93,10 +93,9 @@ void UCIEngine::Go()
     output.append(board->ToFenString());
     output.append("\ngo depth ");
     output.append(QString::number(depth));
-    if (board->Draw) output.append(" draw");
+    if (board->GetDraw()) output.append(" draw");
     output.append("\n");
     engineProcess->write(output.toLocal8Bit());
-    board->Draw = 0;
 }
 
 void UCIEngine::Pause()
@@ -197,10 +196,9 @@ void UCCIEngine::Go()
     output.append(board->ToFenString());
     output.append("\ngo depth ");
     output.append(QString::number(depth));
-    if (board->Draw) output.append(" draw");
+    if (board->GetDraw()) output.append(" draw");
     output.append("\n");
     engineProcess->write(output.toLocal8Bit());
-    board->Draw = 0;
 }
 
 void UCCIEngine::Pause()

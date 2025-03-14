@@ -119,25 +119,32 @@ Board::Board(Player* red, Player* black)
     player[1] = black;
     background = new BoardBackground;
     addItem(background);
-    origFenStr = "rnbakabnr/9/1c5c1/p1p1p1p1p/9/9/P1P1P1P1P/1C5C1/9/RNBAKABNR";
-    origColor = Red;
-    initPieces(origFenStr);
+    recordList.append(Record{
+        .type = GameStart,
+        .endType = NotEnd,
+        .isBlack = true,
+        .ifJiangjun = false,
+        .ifEat = false,
+        .requestDraw = false,
+        .lastEat = 0,
+        .fenStr = "rnbakabnr/9/1c5c1/p1p1p1p1p/9/9/P1P1P1P1P/1C5C1/9/RNBAKABNR"
+    });
+    initPieces(recordList[0].fenStr);
     curPlayerColor = Red;
-    moveNumber = lastNumber = lastEatNumber = 0;
-    origJiangJun = isPaused = 0;
-    origEndType = NotEnd;
+    movePos = lastPos = lastEatPos = 0;
+    isPaused = draw = 0;
 }
 
 void Board::Start()
 {
-    auto endType = (moveNumber == 0 ? origEndType : recordList[moveNumber - 1].endType);
+    auto endType = (recordList[movePos].endType);
     emit BoardInfoChanged(BoardInfo{
         .endType = endType,
         .isBlack = (curPlayerColor == Black),
         .isHuman = (GetCurPlayer()->GetType() == Human),
-        .ifJiangjun = (moveNumber == 0 ? false : recordList[moveNumber - 1].ifJiangjun),
-        .hasPrev = (moveNumber != 0),
-        .hasNext = (moveNumber != lastNumber),
+        .ifJiangjun = (recordList[movePos].ifJiangjun),
+        .hasPrev = (movePos != 0),
+        .hasNext = (movePos != lastPos),
         .isPaused = isPaused,
         .rivalIsHuman = (player[curPlayerColor ^ 1]->GetType() == Human)
     });
@@ -323,28 +330,28 @@ QString Board::ToFenString()
 {
     if (fenCache.isEmpty())
     {
-        fenCache = (lastEatNumber == 0 ? origFenStr : recordList[lastEatNumber - 1].fenStr);
-        bool isBlack = (lastEatNumber == 0 ? origColor == Black : !recordList[lastEatNumber - 1].isBlack);
-        if (isBlack) fenCache.append(" b");
-        else fenCache.append(" w");
+        fenCache = (recordList[lastEatPos].fenStr);
+        bool isBlack = (recordList[lastEatPos].isBlack);
+        if (isBlack) fenCache.append(" w");
+        else fenCache.append(" b");
         fenCache.append(" - - 0 1");
-        if (lastEatNumber != moveNumber)
+        if (lastEatPos != movePos)
             fenCache.append(" moves");
-        for (int i = lastEatNumber; i < moveNumber; ++i)
+        for (int i = lastEatPos + 1; i <= movePos; ++i)
         {
             fenCache.append(" ");
             fenCache.append(recordList[i].ToMoveString());
         }
-        cacheNumber = moveNumber;
+        fenCachePos = movePos + 1;
     }
     else
     {
-        if (cacheNumber == lastEatNumber)
+        if (fenCachePos == lastEatPos + 1)
             fenCache.append(" moves");
-        for (;cacheNumber < moveNumber; ++cacheNumber)
+        for (; fenCachePos <= movePos; ++fenCachePos)
         {
             fenCache.append(" ");
-            fenCache.append(recordList[cacheNumber].ToMoveString());
+            fenCache.append(recordList[fenCachePos].ToMoveString());
         }
     }
 
@@ -361,8 +368,9 @@ float Board::yToPosX ( int xPos )
     return background->yToPosX ( xPos ) - 45;
 }
 
-void Board::changePlayer()
+void Board::prepareNextMove()
 {
+    draw = 0;
     curPlayerColor ^= 1;
     Start();
 }
@@ -456,6 +464,7 @@ void Board::handlePutEvent(QPointF & pos)
 Record Board::getRecord(int fromX, int fromY, int toX, int toY)
 {
     Record record = {
+        .type = NormalMove,
         .fromX = fromX,
         .fromY = fromY,
         .toX = toX,
@@ -463,7 +472,8 @@ Record Board::getRecord(int fromX, int fromY, int toX, int toY)
         .endType = NotEnd,
         .isBlack = (curPlayerColor == Black),
         .ifEat = false,
-        .lastEat = lastEatNumber
+        .requestDraw = draw,
+        .lastEat = lastEatPos
     };
 
     if (!content[toX][toY]->Invalid)
@@ -471,8 +481,10 @@ Record Board::getRecord(int fromX, int fromY, int toX, int toY)
         record.ifEat = true;
         record.dstType = content[toX][toY]->GetType();
         record.dstColor = content[toX][toY]->GetColor();
-        record.lastEat = moveNumber + 1;
+        record.lastEat = movePos;
     }
+
+    if (movePos - record.lastEat >= 120) record.endType = Draw;
 
     auto tempPiece = content[toX][toY];
     content[toX][toY] = content[fromX][fromY];
@@ -480,7 +492,7 @@ Record Board::getRecord(int fromX, int fromY, int toX, int toY)
     content[toX][toY]->Y = toY;
     content[fromX][fromY] = new Piece(fromX, fromY);
 
-    record.ifJiangjun =  judgeJiangjun(PieceColor(curPlayerColor ^ 1));
+    record.ifJiangjun = judgeJiangjun(PieceColor(curPlayerColor ^ 1));
     if (!judgePossibleToMove(PieceColor(curPlayerColor ^ 1)))
         record.endType = (curPlayerColor == Red ? RedWin : BlackWin);
     record.fenStr = toShortFenStr();
@@ -500,6 +512,10 @@ bool Board::Move(int fromX, int fromY, int toX, int toY)
         return false;
 
     Record record = getRecord(fromX, fromY, toX, toY);
+
+    if (recordMap.isEmpty())
+        for (int i = lastEatPos; i <= movePos; ++i)
+            ++recordMap[recordList[i]];
 
     int & c = recordMap[record];
     if (c == 2 && record.ifJiangjun)
@@ -538,18 +554,27 @@ bool Board::Move(int fromX, int fromY, int toX, int toY)
     }
     else content[toX][toY]->setPos(yToPosX(toY), xToPosY(toX));
 
-    lastEatNumber = record.lastEat;
-    if (record.ifEat) fenCache.clear();
+    lastEatPos = record.lastEat;
+    if (record.ifEat)
+    {
+        fenCache.clear();
+        recordMap.clear();
+    }
 
-    if (moveNumber >= recordList.size())
+    lastPos = ++movePos;
+    if (movePos >= recordList.size())
         recordList.append(record);
-    else recordList[moveNumber] = record;
-    lastNumber = ++moveNumber;
+    else recordList[movePos] = record;
 
-    if (record.endType)
-        dialog() << (curPlayerColor == Red ? tr("红方") : tr("黑方")) + tr("胜利");
-
-    QTimer::singleShot(200, this, &Board::changePlayer);
+    if (!record.endType)
+        QTimer::singleShot(200, this, &Board::prepareNextMove);
+    else
+    {
+        if (record.endType == BlackWin) dialog() << tr("黑方胜利");
+        else if (record.endType == Draw) dialog() << tr("双方和棋");
+        else dialog() << tr("红方胜利");
+        QTimer::singleShot(200, this, &Board::Start);
+    }
     return true;
 }
 
@@ -1075,7 +1100,6 @@ Piece * Board::GetPiece(int x, int y)
 
 void Board::switchToMove(int to)
 {
-    Draw = 0;
     for (int i = 0; i <= 9; ++i)
         for (int j = 0; j <= 8; ++j)
         {
@@ -1083,27 +1107,20 @@ void Board::switchToMove(int to)
             delete(content[i][j]);
         }
     if (focusFrame.scene() == this) removeItem(&focusFrame);
-    if (to < 0)
-    {
-        moveNumber = 0;
-        initPieces(origFenStr);
-        if (oldFrame.scene() == this) removeItem(&oldFrame);
-        if (newFrame.scene() == this) removeItem(&newFrame);
-        curPlayerColor = Red;
-    }
-    else
-    {
-        if (to >= lastNumber) to = lastNumber - 1;
-        initPieces(recordList[to].fenStr);
-        moveNumber = to + 1;
-        oldFrame.setPos(yToPosX(recordList[to].fromY), xToPosY(recordList[to].fromX));
-        if (oldFrame.scene() != this)
-            addItem(&oldFrame);
-        newFrame.setPos(yToPosX(recordList[to].toY), xToPosY(recordList[to].toX));
-        if (newFrame.scene() != this)
-            addItem(&newFrame);
-        curPlayerColor = recordList[to].isBlack ? Red : Black;
-    }
+    if (to > lastPos) to = lastPos;
+    initPieces(recordList[to].fenStr);
+    movePos = to;
+    oldFrame.setPos(yToPosX(recordList[to].fromY), xToPosY(recordList[to].fromX));
+    if (oldFrame.scene() != this)
+        addItem(&oldFrame);
+    newFrame.setPos(yToPosX(recordList[to].toY), xToPosY(recordList[to].toX));
+    if (newFrame.scene() != this)
+        addItem(&newFrame);
+    curPlayerColor = recordList[to].isBlack ? Red : Black;
+    lastEatPos = recordList[to].lastEat;
+    draw = recordList[to].requestDraw;
+    fenCache.clear();
+    recordMap.clear();
 }
 
 void Board::doPause()
@@ -1124,25 +1141,61 @@ void Board::Undo()
 {
     doPause();
 
-    switchToMove(moveNumber - 2);
+    switchToMove(movePos - 1);
     Start();
 }
 
 void Board::Redo()
 {
     doPause();
-    switchToMove(moveNumber);
+    switchToMove(movePos + 1);
+    Start();
+}
+
+void Board::handleAbnormalEnd(EndType type)
+{
+    status = BoardBanned;
+    if (focusFrame.scene() == this) removeItem(&focusFrame);
+    ++movePos;
+    Record record = {
+        .type = EndResign,
+        .endType = type,
+        .isBlack = (curPlayerColor == Black),
+        .ifJiangjun = recordList[movePos - 1].ifJiangjun,
+        .ifEat = false,
+        .requestDraw = false,
+        .lastEat = lastEatPos,
+        .fenStr = recordList[movePos - 1].fenStr
+    };
+    if (movePos >= recordList.size())
+        recordList.append(record);
+    else recordList[movePos] = record;
+    lastPos = movePos;
     Start();
 }
 
 void Board::Resign()
 {
-    status = BoardBanned;
-    if (focusFrame.scene() == this) removeItem(&focusFrame);
-    auto whoWin = (curPlayerColor == Red ? BlackWin : RedWin);
-    if (moveNumber == 0) origEndType = whoWin;
-    else recordList[moveNumber - 1].endType = whoWin;
-    lastNumber = moveNumber;
+    handleAbnormalEnd(curPlayerColor == Red ? BlackWin : RedWin);
     dialog() << (curPlayerColor == Red ? tr("红方") : tr("黑方")) + tr("认输");
-    Start();
+}
+
+bool Board::GetDraw()
+{
+    return recordList[movePos].requestDraw;
+}
+
+bool Board::RequestDraw()
+{
+    if (GetDraw())
+    {
+        handleAbnormalEnd(Draw);
+        dialog() << "双方和棋";
+        return true;
+    }
+    else
+    {
+        draw = true;
+        return false;
+    }
 }

@@ -33,6 +33,11 @@
 #include "piece.h"
 #include "player.h"
 
+enum RecordType
+{
+    GameStart, NormalMove, EndResign, EndDraw
+};
+
 enum EndType
 {
     NotEnd = 0, RedWin, Draw, BlackWin
@@ -40,14 +45,15 @@ enum EndType
 
 struct Record
 {
+    RecordType type;
     int fromX, fromY, toX, toY;
     PieceColor dstColor;
     PieceType dstType;
-    bool isHuman;
     EndType endType;
     bool isBlack;
     bool ifJiangjun;
     bool ifEat;
+    bool requestDraw;
     int lastEat;
     QString fenStr;
 

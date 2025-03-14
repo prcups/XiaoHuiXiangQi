@@ -104,12 +104,10 @@ class Board : public QGraphicsScene
     int curPlayerColor;
     BoardStatus status = BoardBanned;
     Piece *selectedPiece;
-    int moveNumber, lastNumber, lastEatNumber, cacheNumber;
-    EndType origEndType;
-    PieceColor origColor;
-    bool origJiangJun, isPaused;
+    int movePos, lastPos, lastEatPos, fenCachePos;
+    bool isPaused, draw;
     Frame focusFrame, oldFrame, newFrame;
-    QString origFenStr, fenCache;
+    QString fenCache;
     QList <Record> recordList;
     QHash <Record, int> recordMap;
     QSettings settings;
@@ -127,6 +125,7 @@ class Board : public QGraphicsScene
     void doPause();
     Record getRecord(int fromX, int fromY, int toX, int toY);
     void switchToMove(int to);
+    void handleAbnormalEnd(EndType type);
 
     void handlePutEvent(QPointF & pos);
     void mousePressEvent ( QGraphicsSceneMouseEvent * event ) override;
@@ -148,7 +147,7 @@ class Board : public QGraphicsScene
     bool judgePossibleToMove(PieceColor color);
 
 private slots:
-    void changePlayer();
+    void prepareNextMove();
 
 public:
     Board(Player *red, Player *black);
@@ -164,7 +163,8 @@ public:
     void Undo();
     void Redo();
     void Resign();
-    bool Draw;
+    bool GetDraw();
+    bool RequestDraw();
 
 signals:
     void BoardInfoChanged(const BoardInfo &info);

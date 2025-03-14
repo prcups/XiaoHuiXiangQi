@@ -205,8 +205,8 @@ void MainWindow::onRedoTriggered()
 
 void MainWindow::onDrawTriggered()
 {
-    bar() << tr("请走一着棋，若对方不同意求和会继续行棋，否则对局以和结束");
-    board->Draw = true;
+    if (!board->RequestDraw())
+        bar() << tr("请走一着棋，若对方不同意求和会继续行棋，否则对局以和结束");
 }
 
 void MainWindow::onResignTriggered()
@@ -222,36 +222,6 @@ void MainWindow::onSettingsTriggered()
 
 void MainWindow::onBoardInfoChanged(const BoardInfo& info)
 {
-    undo->setEnabled(info.hasPrev);
-    redo->setEnabled(info.hasNext);
-
-    auto canDrawAndResign = info.isHuman && info.endType == NotEnd
-                                && info.rivalIsHuman == false
-                                && !info.isPaused;
-    draw->setEnabled(canDrawAndResign);
-    resign->setEnabled(canDrawAndResign);
-
-    if (info.ifJiangjun)
-        bar() << (info.isBlack ? tr("红方") : tr("黑方")) + tr("将军");
-    if (info.endType)
-    {
-        pause->setDisabled(true);
-        if (info.endType == BlackWin) bar() << tr("黑方胜利");
-        else if (info.endType == Draw) bar() << tr("和棋");
-        else bar() << tr("红方胜利");
-        boardView.resetTransform();
-        board->Rotate(false);
-        return;
-    }
-
-    pause->setEnabled(true);
-    if (info.isPaused)
-    {
-        bar() << tr("游戏已暂停");
-        pause->setText(tr("继续"));
-    }
-    else pause->setText(tr("暂停"));
-
     if (settings.value("rotate", true).toBool())
     {
         if (info.isHuman)
@@ -269,4 +239,33 @@ void MainWindow::onBoardInfoChanged(const BoardInfo& info)
             }
         }
     }
+
+    undo->setEnabled(info.hasPrev);
+    redo->setEnabled(info.hasNext);
+
+    auto canDrawAndResign = info.isHuman && info.endType == NotEnd
+                                && info.rivalIsHuman == false
+                                && !info.isPaused;
+    draw->setEnabled(canDrawAndResign);
+    resign->setEnabled(canDrawAndResign);
+
+    if (info.endType)
+    {
+        pause->setDisabled(true);
+        if (info.endType == BlackWin) bar() << tr("黑方胜利");
+        else if (info.endType == Draw) bar() << tr("双方和棋");
+        else bar() << tr("红方胜利");
+        return;
+    }
+
+    if (info.ifJiangjun)
+        bar() << (info.isBlack ? tr("红方") : tr("黑方")) + tr("将军");
+
+    pause->setEnabled(true);
+    if (info.isPaused)
+    {
+        bar() << tr("游戏已暂停");
+        pause->setText(tr("继续"));
+    }
+    else pause->setText(tr("暂停"));
 }
