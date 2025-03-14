@@ -85,7 +85,7 @@ MainWindow::MainWindow()
     undo->setDisabled(true);
     redo = operationMenu->addAction(tr("下一步"), this, &MainWindow::onRedoTriggered);
     redo->setDisabled(true);
-    draw = operationMenu->addAction(tr("求和"), this, &MainWindow::onDrawTriggered);
+    draw = operationMenu->addAction(tr("求和/接受求和"), this, &MainWindow::onDrawTriggered);
     draw->setDisabled(true);
     resign = operationMenu->addAction(tr("认输"), this, &MainWindow::onResignTriggered);
     resign->setDisabled(true);
@@ -244,7 +244,6 @@ void MainWindow::onBoardInfoChanged(const BoardInfo& info)
     redo->setEnabled(info.hasNext);
 
     auto canDrawAndResign = info.isHuman && info.endType == NotEnd
-                                && info.rivalIsHuman == false
                                 && !info.isPaused;
     draw->setEnabled(canDrawAndResign);
     resign->setEnabled(canDrawAndResign);

@@ -484,7 +484,7 @@ Record Board::getRecord(int fromX, int fromY, int toX, int toY)
         record.lastEat = movePos;
     }
 
-    if (movePos - record.lastEat >= 120) record.endType = Draw;
+    if (movePos - record.lastEat >= 100) record.endType = Draw;
 
     auto tempPiece = content[toX][toY];
     content[toX][toY] = content[fromX][fromY];

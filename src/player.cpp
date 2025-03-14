@@ -39,6 +39,8 @@ void Player::Go()
 {
     if (!board) return;
     bar() << tr("就绪");
+    if (board->GetDraw())
+        bar() << tr("对方求和，如同意请点击求和/接受求和选项");
     board->SetMovable(true);
 }
 
@@ -141,9 +143,27 @@ void UCIEngine::handleOutput()
                 if (output.isEmpty()) break;
                 log() << (this->playerColor == Red ? QString("Red: ") : QString("Black: "))
                     << output;
-                if (output.contains("bestmove"))
+                if (output.leftRef(8) == "bestmove")
                 {
-                    handleShortMoveString(output.remove(0, 9).chopped(1));
+                    auto bestmoveList = output.splitRef(QRegExp("[ \n]"));
+                    if (bestmoveList.size() > 1)
+                    {
+                        if (bestmoveList[1] == "(none)")
+                        {
+                            board->Resign();
+                            return;
+                        }
+                        for (int i = 0; i < bestmoveList.size(); ++i)
+                        {
+                            if (bestmoveList[i] == "draw" && board->RequestDraw()) return;
+                            if (bestmoveList[i] == "resign")
+                            {
+                                board->Resign();
+                                return;
+                            }
+                        }
+                        handleShortMoveString(bestmoveList[1].toString());
+                    }
                     status = EnginePrepared;
                     break;
                 }
@@ -152,7 +172,7 @@ void UCIEngine::handleOutput()
     }
 }
 
-void UCIEngine::handleShortMoveString(QString moveString)
+void UCIEngine::handleShortMoveString(const QString & moveString)
 {
     int fromX = moveString[1].toLatin1() - '0';
     int fromY = moveString[0].toLatin1() - 'a';
@@ -244,9 +264,27 @@ void UCCIEngine::handleOutput()
                 if (output.isEmpty()) break;
                 log() << (this->playerColor == Red ? QString("Red: ") : QString("Black: "))
                     << output;
-                if (output.contains("bestmove"))
+                if (output.leftRef(10) == "nobestmove")
                 {
-                    handleShortMoveString(output.remove(0, 9).chopped(1));
+                    board->Resign();
+                    return;
+                }
+                if (output.leftRef(8) == "bestmove")
+                {
+                    auto bestmoveList = output.splitRef(QRegExp("[ \n]"));
+                    if (bestmoveList.size() > 1)
+                    {
+                        for (int i = 0; i < bestmoveList.size(); ++i)
+                        {
+                            if (bestmoveList[i] == "draw" && board->RequestDraw()) return;
+                            if (bestmoveList[i] == "resign")
+                            {
+                                board->Resign();
+                                return;
+                            }
+                        }
+                        handleShortMoveString(bestmoveList[1].toString());
+                    }
                     status = EnginePrepared;
                     break;
                 }
@@ -255,7 +293,7 @@ void UCCIEngine::handleOutput()
     }
 }
 
-void UCCIEngine::handleShortMoveString(QString moveString)
+void UCCIEngine::handleShortMoveString(const QString & moveString)
 {
     int fromX = moveString[1].toLatin1() - '0';
     int fromY = moveString[0].toLatin1() - 'a';

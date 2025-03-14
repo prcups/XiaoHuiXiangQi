@@ -32,6 +32,7 @@
 
 #include <QObject>
 #include <QProcess>
+#include <QRegExp>
 #include "piece.h"
 #include "log.h"
 
@@ -84,7 +85,7 @@ class UCIEngine : public Player
 
 private slots:
     void handleOutput();
-    void handleShortMoveString(QString moveString);
+    void handleShortMoveString(const QString & moveString);
 
 public:
     UCIEngine(PieceColor color, QString enginePath, int depth);
@@ -104,7 +105,7 @@ class UCCIEngine : public Player
 
 private slots:
     void handleOutput();
-    void handleShortMoveString(QString moveString);
+    void handleShortMoveString(const QString & moveString);
 
 public:
     UCCIEngine(PieceColor color, QString enginePath, int depth);
