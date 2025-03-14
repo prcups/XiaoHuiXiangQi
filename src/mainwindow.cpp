@@ -126,9 +126,12 @@ void MainWindow::onCreateTriggered()
     if (!gameStartDialog.exec()) return;
     for (int i = 0; i < 2; ++i)
     {
-        if (gameStartDialog.GetPlayerSelection(PieceColor(i)) == 0)
+        auto engineIndex = gameStartDialog.GetPlayerSelection(PieceColor(i));
+        if (engineIndex == 0)
              player[i] = new Player(PieceColor(i));
         else {
+            EngineType type = gameStartDialog.GetEngineType(engineIndex);
+
             int depth;
             switch(gameStartDialog.GetPlayerDiffSelection(PieceColor(i)))
             {
@@ -141,7 +144,10 @@ void MainWindow::onCreateTriggered()
                 case 2:
                     depth = gameStartDialog.GetPlayerDepthSelection(PieceColor(i));
             }
-            player[i] = new Engine(PieceColor(i), "./pikafish", depth);
+            if (type.protocol == UCI)
+                player[i] = new UCIEngine(PieceColor(i), type.path, depth);
+            else
+                player[i] = new UCCIEngine(PieceColor(i), type.path, depth);
         }
     }
 
@@ -245,18 +251,21 @@ void MainWindow::onBoardInfoChanged(const BoardInfo& info)
     }
     else pause->setText(tr("暂停"));
 
-    if (info.isHuman)
+    if (settings.value("rotate", true).toBool())
     {
-        if (info.isBlack)
+        if (info.isHuman)
         {
-            boardView.resetTransform();
-            boardView.rotate(180);
-            board->Rotate(true);
-        }
-        else
-        {
-            boardView.resetTransform();
-            board->Rotate(false);
+            if (info.isBlack)
+            {
+                boardView.resetTransform();
+                boardView.rotate(180);
+                board->Rotate(true);
+            }
+            else
+            {
+                boardView.resetTransform();
+                board->Rotate(false);
+            }
         }
     }
 }

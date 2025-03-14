@@ -38,6 +38,7 @@
 #include <QJsonObject>
 #include <QToolButton>
 #include <QFileDialog>
+#include <QPushButton>
 
 namespace Ui
 {
@@ -58,6 +59,8 @@ public slots:
     void onChooseTriggered();
     void onAddTriggered();
     void onRemoveTriggered();
+    void onApplyTriggered();
+    void onApplyEnabled();
 };
 
 #endif // SETTINGSDIALOG_H

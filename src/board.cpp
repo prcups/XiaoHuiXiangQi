@@ -528,10 +528,15 @@ bool Board::Move(int fromX, int fromY, int toX, int toY)
     content[fromX][fromY]->setPos(yToPosX(fromY), xToPosY(fromX));
     content[fromX][fromY]->X = fromX;
     content[fromX][fromY]->Y = fromY;
-    QPropertyAnimation *animation = new QPropertyAnimation(content[toX][toY], "pos");
-    animation->setDuration(100);
-    animation->setEndValue(QPointF(yToPosX(toY), xToPosY(toX)));
-    animation->start();
+
+    if (settings.value("animation", true).toBool())
+    {
+        QPropertyAnimation *animation = new QPropertyAnimation(content[toX][toY], "pos");
+        animation->setDuration(100);
+        animation->setEndValue(QPointF(yToPosX(toY), xToPosY(toX)));
+        animation->start();
+    }
+    else content[toX][toY]->setPos(yToPosX(toY), xToPosY(toX));
 
     lastEatNumber = record.lastEat;
     if (record.ifEat) fenCache.clear();

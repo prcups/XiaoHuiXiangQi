@@ -24,21 +24,7 @@
        <string>引擎</string>
       </attribute>
       <layout class="QGridLayout" name="gridLayout">
-       <item row="1" column="1">
-        <widget class="QToolButton" name="chooseFile">
-         <property name="text">
-          <string>选择</string>
-         </property>
-        </widget>
-       </item>
-       <item row="1" column="0">
-        <widget class="QLineEdit" name="enginePath">
-         <property name="placeholderText">
-          <string>可执行文件路径</string>
-         </property>
-        </widget>
-       </item>
-       <item row="1" column="2">
+       <item row="1" column="3">
         <widget class="QComboBox" name="engineType">
          <item>
           <property name="text">
@@ -52,21 +38,54 @@
          </item>
         </widget>
        </item>
-       <item row="1" column="3">
-        <widget class="QToolButton" name="addEngine">
-         <property name="text">
-          <string>添加</string>
-         </property>
-        </widget>
-       </item>
-       <item row="1" column="4">
+       <item row="1" column="5">
         <widget class="QToolButton" name="deleteEngine">
          <property name="text">
           <string>删除</string>
          </property>
         </widget>
        </item>
-       <item row="0" column="0" colspan="5">
+       <item row="1" column="1">
+        <widget class="QLineEdit" name="enginePath">
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+           <horstretch>2</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
+         <property name="placeholderText">
+          <string>可执行文件路径</string>
+         </property>
+        </widget>
+       </item>
+       <item row="1" column="4">
+        <widget class="QToolButton" name="addEngine">
+         <property name="text">
+          <string>添加</string>
+         </property>
+        </widget>
+       </item>
+       <item row="1" column="2">
+        <widget class="QToolButton" name="chooseFile">
+         <property name="text">
+          <string>选择</string>
+         </property>
+        </widget>
+       </item>
+       <item row="1" column="0">
+        <widget class="QLineEdit" name="engineName">
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+           <horstretch>1</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
+         <property name="placeholderText">
+          <string>名称</string>
+         </property>
+        </widget>
+       </item>
+       <item row="0" column="0" colspan="6">
         <widget class="QListWidget" name="engineListWidget"/>
        </item>
       </layout>

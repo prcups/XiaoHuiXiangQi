@@ -73,7 +73,7 @@ public:
     Piece *JiangPtr;
 };
 
-class Engine : public Player
+class UCIEngine : public Player
 {
     Q_OBJECT
 
@@ -87,8 +87,28 @@ private slots:
     void handleShortMoveString(QString moveString);
 
 public:
-    Engine(PieceColor color, QString enginePath, int depth);
-    ~Engine();
+    UCIEngine(PieceColor color, QString enginePath, int depth);
+    ~UCIEngine();
+    void Go() override;
+    void Pause() override;
+};
+
+class UCCIEngine : public Player
+{
+    Q_OBJECT
+
+    QProcess *engineProcess;
+    EngineStatus status = EngineCreated;
+    bool deferGo = 0;
+    int depth;
+
+private slots:
+    void handleOutput();
+    void handleShortMoveString(QString moveString);
+
+public:
+    UCCIEngine(PieceColor color, QString enginePath, int depth);
+    ~UCCIEngine();
     void Go() override;
     void Pause() override;
 };

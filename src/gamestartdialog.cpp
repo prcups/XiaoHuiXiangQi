@@ -34,6 +34,17 @@ GameStartDialog::GameStartDialog()
     : m_ui(new Ui::GameStartDialog), v(new QIntValidator(1, 50, this))
 {
     m_ui->setupUi(this);
+
+    QSettings settings;
+    engineList = settings.value("list").toJsonArray();
+    QString name;
+    for (auto i : engineList)
+    {
+        name = i.toObject()["name"].toString();
+        m_ui->RedPlayer->addItem(name);
+        m_ui->BlackPlayer->addItem(name);
+    }
+
     connect(m_ui->RedPlayer, QOverload<int>::of(&QComboBox::currentIndexChanged),
             this, &GameStartDialog::handleRedPlayerChanged);
     connect(m_ui->BlackPlayer, QOverload<int>::of(&QComboBox::currentIndexChanged),
@@ -63,6 +74,15 @@ int GameStartDialog::GetPlayerDiffSelection(PieceColor color)
     if (color == Red) return m_ui->RedDiff->currentIndex();
     else return m_ui->BlackDiff->currentIndex();
 }
+
+EngineType GameStartDialog::GetEngineType(int index)
+{
+    return EngineType{
+        .path = engineList[index - 1].toObject()["path"].toString(),
+        .protocol = EngineProtocol(engineList[index - 1].toObject()["protocol"].toInt())
+    };
+}
+
 
 void GameStartDialog::handleRedPlayerChanged(int index)
 {

@@ -34,12 +34,26 @@
 #include <QScopedPointer>
 #include <QValidator>
 #include <QPushButton>
+#include <QJsonArray>
+#include <QJsonObject>
+#include <QSettings>
 #include "piece.h"
 
 namespace Ui
 {
 class GameStartDialog;
 }
+
+enum EngineProtocol
+{
+    UCI, UCCI
+};
+
+struct EngineType
+{
+    QString path;
+    EngineProtocol protocol;
+};
 
 class GameStartDialog : public QDialog
 {
@@ -51,10 +65,12 @@ public:
     int GetPlayerSelection(PieceColor color);
     int GetPlayerDiffSelection(PieceColor color);
     int GetPlayerDepthSelection(PieceColor color);
+    EngineType GetEngineType(int index);
 
 private:
     QScopedPointer<Ui::GameStartDialog> m_ui;
     QScopedPointer<QIntValidator> v;
+    QJsonArray engineList;
 
 public slots:
     void handleRedPlayerChanged(int index);

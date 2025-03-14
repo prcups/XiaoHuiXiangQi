@@ -42,6 +42,7 @@
 #include <QList>
 #include <QMessageBox>
 #include <QPointer>
+#include <QSettings>
 #include "piece.h"
 #include "player.h"
 #include "log.h"
@@ -111,6 +112,7 @@ class Board : public QGraphicsScene
     QString origFenStr, fenCache;
     QList <Record> recordList;
     QHash <Record, int> recordMap;
+    QSettings settings;
 
     static const QVector <QPair<int, int>> jiangOffset;
     static const QVector <QPair<int, int>> maOffset;
@@ -162,7 +164,6 @@ public:
     void Undo();
     void Redo();
     void Resign();
-
     bool Draw;
 
 signals:

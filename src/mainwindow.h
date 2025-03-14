@@ -75,6 +75,7 @@ class MainWindow : public QMainWindow
     BoardView boardView;
     QLabel status;
     QAction *undo, *redo, *draw, *resign, *pause;
+    QSettings settings;
 private slots:
     void onStatusUpdated(const QString & str);
     void onDialogWanted(const QString & str);
