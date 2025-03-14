@@ -118,9 +118,9 @@ void UCIEngine::handleOutput()
             {
                 output = engineProcess->readLine();
                 if (output.isEmpty()) break;
+                log() << (this->playerColor == Red ? QString("Red: ") : QString("Black: ")) << output;
                 if (output == "uciok\n")
                 {
-                    log() << (this->playerColor == Red ? QString("Red: ") : QString("Black: ")) << output;
                     status = EnginePrepared;
                     if (deferGo)
                     {
@@ -140,10 +140,10 @@ void UCIEngine::handleOutput()
             {
                 output = engineProcess->readLine();
                 if (output.isEmpty()) break;
+                log() << (this->playerColor == Red ? QString("Red: ") : QString("Black: "))
+                    << output;
                 if (output.contains("bestmove"))
                 {
-                    log() << (this->playerColor == Red ? QString("Red: ") : QString("Black: "))
-                    << output;
                     handleShortMoveString(output.remove(0, 9).chopped(1));
                     status = EnginePrepared;
                     break;
@@ -222,9 +222,9 @@ void UCCIEngine::handleOutput()
             {
                 output = engineProcess->readLine();
                 if (output.isEmpty()) break;
+                log() << (this->playerColor == Red ? QString("Red: ") : QString("Black: ")) << output;
                 if (output == "ucciok\n")
                 {
-                    log() << (this->playerColor == Red ? QString("Red: ") : QString("Black: ")) << output;
                     status = EnginePrepared;
                     if (deferGo)
                     {
@@ -244,10 +244,10 @@ void UCCIEngine::handleOutput()
             {
                 output = engineProcess->readLine();
                 if (output.isEmpty()) break;
+                log() << (this->playerColor == Red ? QString("Red: ") : QString("Black: "))
+                    << output;
                 if (output.contains("bestmove"))
                 {
-                    log() << (this->playerColor == Red ? QString("Red: ") : QString("Black: "))
-                    << output;
                     handleShortMoveString(output.remove(0, 9).chopped(1));
                     status = EnginePrepared;
                     break;

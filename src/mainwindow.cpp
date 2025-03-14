@@ -40,8 +40,9 @@ BoardView::BoardView()
     setAcceptDrops(true);
 }
 
-LogWindow::LogWindow(): edit(new QTextEdit)
+LogWindow::LogWindow(): edit(new QPlainTextEdit)
 {
+    edit->setMaximumBlockCount(200);
     setVisible(false);
     setWindowTitle(tr("日志"));
     setAllowedAreas(Qt::LeftDockWidgetArea);
@@ -136,10 +137,10 @@ void MainWindow::onCreateTriggered()
             switch(gameStartDialog.GetPlayerDiffSelection(PieceColor(i)))
             {
                 case 0:
-                    depth = 10;
+                    depth = 5;
                     break;
                 case 1:
-                    depth = 20;
+                    depth = 10;
                     break;
                 case 2:
                     depth = gameStartDialog.GetPlayerDepthSelection(PieceColor(i));

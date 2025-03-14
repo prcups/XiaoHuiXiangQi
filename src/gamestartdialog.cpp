@@ -83,7 +83,6 @@ EngineType GameStartDialog::GetEngineType(int index)
     };
 }
 
-
 void GameStartDialog::handleRedPlayerChanged(int index)
 {
     m_ui->RedDiff->setEnabled(index != 0);

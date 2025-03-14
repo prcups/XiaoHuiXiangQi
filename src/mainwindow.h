@@ -36,7 +36,7 @@
 #include <QPointer>
 #include <QMessageBox>
 #include <QDockWidget>
-#include <QTextEdit>
+#include <QPlainTextEdit>
 #include <QStatusBar>
 #include <QLabel>
 #include <QTransform>
@@ -57,7 +57,7 @@ class LogWindow: public QDockWidget
 {
     Q_OBJECT
 
-    QScopedPointer <QTextEdit> edit;
+    QScopedPointer <QPlainTextEdit> edit;
 public:
     LogWindow();
     void clear();

@@ -502,9 +502,9 @@ bool Board::Move(int fromX, int fromY, int toX, int toY)
     Record record = getRecord(fromX, fromY, toX, toY);
 
     int & c = recordMap[record];
-    if (c == 2)
+    if (c == 2 && record.ifJiangjun)
     {
-        bar() << tr("暂不允许长打");
+        bar() << tr("不允许长将");
         return false;
     }
     ++c;
