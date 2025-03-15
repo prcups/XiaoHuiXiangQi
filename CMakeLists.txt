@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.15)
-project(xiaohuixiangqi VERSION 0.1.0)
+project(xiaohuixiangqi VERSION 0.1.1)
 
 # Find includes in corresponding build directories
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
@@ -35,3 +35,5 @@ target_link_libraries(xiaohuixiangqi Qt5::Widgets)
 
 # Install the executable
 install(TARGETS xiaohuixiangqi DESTINATION bin)
+install(FILES assets/xiaohuixiangqi.png DESTINATION share/icons/hicolor/512x512/apps/)
+install(FILES assets/xiaohuixiangqi.desktop DESTINATION share/applications/)

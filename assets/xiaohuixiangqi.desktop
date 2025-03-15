@@ -1,0 +1,11 @@
+[Desktop Entry]
+Name=XiaoHuiXiangQi
+Name[zh_CN]=小卉象棋
+Name[zh_TW]=小卉象棋
+Exec=xiaohuixiangqi
+Icon=xiaohuixiangqi
+Type=Application
+Categories=Qt;Game;BoardGame;
+GenericName=Chinese Chess game
+GenericName[zh_CN]=中国象棋游戏
+GenericName[zh_TW]=中國象棋遊戲
