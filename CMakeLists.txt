@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.15)
-project(XiaoHuiXiangQi)
+project(xiaohuixiangqi VERSION 0.1.0)
 
 # Find includes in corresponding build directories
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
@@ -7,9 +7,12 @@ set(CMAKE_INCLUDE_CURRENT_DIR ON)
 set(CMAKE_AUTOMOC ON)
 # Instruct CMake to create code from Qt designer ui files
 set(CMAKE_AUTOUIC ON)
+set (CMAKE_CXX_STANDARD 20)
 
 # Find the QtWidgets library
 find_package(Qt5Widgets CONFIG REQUIRED)
+
+qt_add_resources(QRC_FILES assets/assets.qrc)
 
 set(xiaohuixiangqi_SRC
   src/main.cpp
@@ -21,11 +24,7 @@ set(xiaohuixiangqi_SRC
   src/log.cpp
   src/record.cpp
   src/settingsdialog.cpp
-)
-
-file(COPY
-  assets/icon.jpg
-  DESTINATION ${CMAKE_BINARY_DIR}
+  ${QRC_FILES}
 )
 
 # Tell CMake to create the helloworld executable

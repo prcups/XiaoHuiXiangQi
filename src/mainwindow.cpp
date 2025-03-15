@@ -65,7 +65,7 @@ void LogWindow::onLogReceived(const QString& str)
 MainWindow::MainWindow()
 {
     setWindowTitle(tr("小卉象棋"));
-    setWindowIcon(QIcon("icon.jpg"));
+    setWindowIcon(QIcon(":/icon.jpg"));
 
     addDockWidget(Qt::LeftDockWidgetArea, &logWindow);
     connect(&log(), &Log::NewLogOutput, &logWindow, &LogWindow::onLogReceived);
