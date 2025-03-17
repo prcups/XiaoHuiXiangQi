@@ -38,7 +38,6 @@ Player::Player(PieceColor color)
 void Player::Go()
 {
     if (!board) return;
-    bar() << tr("就绪");
     if (board->GetDraw())
         bar() << tr("对方求和，如同意请点击求和/接受求和选项");
     board->SetMovable(true);

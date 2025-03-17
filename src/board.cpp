@@ -372,6 +372,7 @@ void Board::prepareNextMove()
 {
     draw = 0;
     curPlayerColor ^= 1;
+    bar() << tr("就绪");
     Start();
 }
 
