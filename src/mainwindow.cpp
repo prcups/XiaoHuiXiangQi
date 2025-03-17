@@ -1,35 +1,6 @@
-// The contents of this file are subject to the Mozilla Public License
-// Version 1.1 (the "License"); you may not use this file except in
-// compliance with the License. You may obtain a copy of the License at
-// http://www.mozilla.org/MPL/
-// 
-// Software distributed under the License is distributed on an "AS IS"
-// basis, WITHOUT WARRANTY OF ANY KIND, either express or implied. See the
-// License for the specific language governing rights and limitations
-// under the License.
-// 
-// The Original Code is ______________________________________.
-// 
-// The Initial Developer of the Original Code is ________________________.
-// // Portions created by ______________________ are Copyright (C) ______
-// _______________________. All Rights Reserved.
-// 
-// Contributor(s): ______________________________________.
-// 
-// Alternatively, the contents of this file may be used under the terms
-// of the _____ license (the  "[___] License"), in which case the
-// provisions of [______] License are applicable instead of those
-// above.  If you wish to allow use of your version of this file only
-// under the terms of the [____] License and not to allow others to use
-// your version of this file under the MPL, indicate your decision by
-// deleting  the provisions above and replace  them with the notice and
-// other provisions required by the [___] License.  If you do not delete
-// the provisions above, a recipient may use your version of this file
-// under either the MPL or the [___] License."
-
 #include "mainwindow.h"
 
-void BoardView::resizeEvent(QResizeEvent* event)
+void BoardView::resizeEvent(QResizeEvent *event)
 {
     Q_UNUSED(event)
     fitInView(sceneRect(), Qt::KeepAspectRatio);
@@ -56,7 +27,7 @@ void LogWindow::clear()
     edit->clear();
 }
 
-void LogWindow::onLogReceived(const QString& str)
+void LogWindow::onLogReceived(const QString &str)
 {
     edit->insertPlainText(str);
     edit->ensureCursorVisible();
@@ -111,12 +82,12 @@ MainWindow::~MainWindow()
     delete board;
 }
 
-void MainWindow::onDialogWanted(const QString& str)
+void MainWindow::onDialogWanted(const QString &str)
 {
     QMessageBox::information(this, "", str);
 }
 
-void MainWindow::onStatusUpdated(const QString& str)
+void MainWindow::onStatusUpdated(const QString &str)
 {
     status.setText(str);
 }
@@ -125,25 +96,23 @@ void MainWindow::onCreateTriggered()
 {
     GameStartDialog gameStartDialog;
     if (!gameStartDialog.exec()) return;
-    for (int i = 0; i < 2; ++i)
-    {
+    for (int i = 0; i < 2; ++i) {
         auto engineIndex = gameStartDialog.GetPlayerSelection(PieceColor(i));
         if (engineIndex == 0)
-             player[i] = new Player(PieceColor(i));
+            player[i] = new Player(PieceColor(i));
         else {
             EngineType type = gameStartDialog.GetEngineType(engineIndex);
 
             int depth;
-            switch(gameStartDialog.GetPlayerDiffSelection(PieceColor(i)))
-            {
-                case 0:
-                    depth = 5;
-                    break;
-                case 1:
-                    depth = 10;
-                    break;
-                case 2:
-                    depth = gameStartDialog.GetPlayerDepthSelection(PieceColor(i));
+            switch (gameStartDialog.GetPlayerDiffSelection(PieceColor(i))) {
+            case 0:
+                depth = 5;
+                break;
+            case 1:
+                depth = 10;
+                break;
+            case 2:
+                depth = gameStartDialog.GetPlayerDepthSelection(PieceColor(i));
             }
             if (type.protocol == UCI)
                 player[i] = new UCIEngine(PieceColor(i), type.path, depth);
@@ -164,8 +133,7 @@ void MainWindow::onCreateTriggered()
     board = newBoard;
     connect(board, &Board::BoardInfoChanged, this, &MainWindow::onBoardInfoChanged);
 
-    if (player[0]->GetType() == Computer && player[1]->GetType() == Human)
-    {
+    if (player[0]->GetType() == Computer && player[1]->GetType() == Human) {
         boardView.rotate(180);
         board->Rotate(true);
     }
@@ -220,20 +188,15 @@ void MainWindow::onSettingsTriggered()
     settingsDialog.exec();
 }
 
-void MainWindow::onBoardInfoChanged(const BoardInfo& info)
+void MainWindow::onBoardInfoChanged(const BoardInfo &info)
 {
-    if (settings.value("rotate", true).toBool())
-    {
-        if (info.isHuman)
-        {
-            if (info.isBlack)
-            {
+    if (settings.value("rotate", true).toBool()) {
+        if (info.isHuman) {
+            if (info.isBlack) {
                 boardView.resetTransform();
                 boardView.rotate(180);
                 board->Rotate(true);
-            }
-            else
-            {
+            } else {
                 boardView.resetTransform();
                 board->Rotate(false);
             }
@@ -244,12 +207,11 @@ void MainWindow::onBoardInfoChanged(const BoardInfo& info)
     redo->setEnabled(info.hasNext);
 
     auto canDrawAndResign = info.isHuman && info.endType == NotEnd
-                                && !info.isPaused;
+                            && !info.isPaused;
     draw->setEnabled(canDrawAndResign);
     resign->setEnabled(canDrawAndResign);
 
-    if (info.endType)
-    {
+    if (info.endType) {
         pause->setDisabled(true);
         if (info.endType == BlackWin) bar() << tr("黑方胜利");
         else if (info.endType == Draw) bar() << tr("双方和棋");
@@ -261,10 +223,8 @@ void MainWindow::onBoardInfoChanged(const BoardInfo& info)
         bar() << (info.isBlack ? tr("红方") : tr("黑方")) + tr("将军");
 
     pause->setEnabled(true);
-    if (info.isPaused)
-    {
+    if (info.isPaused) {
         bar() << tr("游戏已暂停");
         pause->setText(tr("继续"));
-    }
-    else pause->setText(tr("暂停"));
+    } else pause->setText(tr("暂停"));
 }
